@@ -33,10 +33,10 @@ class ToolResult(BaseModel):
     tool: ToolName
     content: str
 
-    #allows Docs Expert and Web Guide to provide references
+    #allows Docs Expert and Web Guide to provide references, a list of resources for example titles, urls...
     sources: list[dict[str, Any]] = Field(default_factory=list)
 
     # allows Sandbox to return additional information such as scan statistics
     metadata: dict[str, Any] = Field(default_factory=dict)
-    
+
     error: str | None = None
