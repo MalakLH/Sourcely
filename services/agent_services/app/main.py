@@ -12,6 +12,13 @@ app = FastAPI(
     version="0.1.0",
 )
 
+@app.get("/")
+async def root():
+    
+    return {
+        "message": "Welcome to Sourcely!",
+        "status": "running",
+    }
 
 @app.get("/health")
 def health_check():
