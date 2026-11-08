@@ -16,3 +16,4 @@ class SearchResult(BaseModel):
     published_date: datetime | None = None
     stars: int | None = None
     language: str | None = None
+    ranking_score: float | None = None
