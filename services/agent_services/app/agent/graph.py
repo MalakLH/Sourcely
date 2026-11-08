@@ -6,50 +6,36 @@ from app.agent.router import route_request
 from app.agent.state import AgentState
 from app.tools.base import ToolRequest
 from app.tools.docs_tool import run_docs_tool
-from app.tools.web_tool import run_web_tool
 from app.tools.sandbox_tool import run_sandbox_tool
+from app.tools.web_tool import run_web_tool
 
 
 def router_node(state: AgentState) -> dict:
 
     selected_tool = route_request(state["query"])
 
-    return {
-        "selected_tool": selected_tool.value
-    }
+    return {"selected_tool": selected_tool.value}
 
 
 def docs_node(state: AgentState) -> dict:
 
-    result = run_docs_tool(
-        ToolRequest(query=state["query"])
-    )
+    result = run_docs_tool(ToolRequest(query=state["query"]))
 
-    return {
-        "tool_result": result.model_dump()
-    }
+    return {"tool_result": result.model_dump()}
 
 
 def web_node(state: AgentState) -> dict:
 
-    result = run_web_tool(
-        ToolRequest(query=state["query"])
-    )
+    result = run_web_tool(ToolRequest(query=state["query"]))
 
-    return {
-        "tool_result": result.model_dump()
-    }
+    return {"tool_result": result.model_dump()}
 
 
 def sandbox_node(state: AgentState) -> dict:
 
-    result = run_sandbox_tool(
-        ToolRequest(query=state["query"])
-    )
+    result = run_sandbox_tool(ToolRequest(query=state["query"]))
 
-    return {
-        "tool_result": result.model_dump()
-    }
+    return {"tool_result": result.model_dump()}
 
 
 def final_node(state: AgentState) -> dict:
@@ -58,9 +44,7 @@ def final_node(state: AgentState) -> dict:
 
     answer = result["content"] if result else "No result available."
 
-    return {
-        "answer": answer
-    }
+    return {"answer": answer}
 
 
 def select_tool(

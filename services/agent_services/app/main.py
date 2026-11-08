@@ -5,20 +5,21 @@ from app.core.config import settings
 from app.schemas.request import ChatRequest
 from app.schemas.response import ChatResponse
 
-
 app = FastAPI(
     title=settings.app_name,
     description="Sourcely AI Developer Agent",
     version="0.1.0",
 )
 
+
 @app.get("/")
 async def root():
-    
+
     return {
         "message": "Welcome to Sourcely!",
         "status": "running",
     }
+
 
 @app.get("/health")
 def health_check():

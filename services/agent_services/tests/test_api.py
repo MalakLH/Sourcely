@@ -18,9 +18,7 @@ def test_chat():
 
     response = client.post(
         "/api/v1/chat",
-        json={
-            "message": "Explain Kubernetes Pods"
-        },
+        json={"message": "Explain Kubernetes Pods"},
     )
 
     assert response.status_code == 200
@@ -35,9 +33,7 @@ def test_empty_message():
 
     response = client.post(
         "/api/v1/chat",
-        json={
-            "message": ""
-        },
+        json={"message": ""},
     )
 
     assert response.status_code == 422
