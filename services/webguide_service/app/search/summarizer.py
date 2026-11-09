@@ -1,4 +1,3 @@
-
 import json
 import os
 import re
@@ -33,7 +32,8 @@ class OllamaSummarizer:
     ) -> None:
         self.model = model
         self.base_url = (
-            base_url or os.getenv(
+            base_url
+            or os.getenv(
                 "OLLAMA_BASE_URL",
                 "http://localhost:11434",
             )
@@ -78,7 +78,7 @@ class OllamaSummarizer:
 
     @staticmethod
     def _normalize_explanation(text: str) -> str:
-        
+
         text = " ".join(text.split())
 
         # Remove quotation marks surrounding the entire response.
@@ -92,10 +92,10 @@ class OllamaSummarizer:
             for sentence in sentences
             if not sentence.lower().startswith(
                 (
-                "the user asked",
-                "we are given",
-                "we must",
-                "key points",
+                    "the user asked",
+                    "we are given",
+                    "we must",
+                    "key points",
                 )
             )
         ]
@@ -153,33 +153,23 @@ class OllamaSummarizer:
             ) from exc
 
         except httpx.RequestError as exc:
-            raise OllamaSummarizerError(
-                "Could not connect to Ollama."
-            ) from exc
+            raise OllamaSummarizerError("Could not connect to Ollama.") from exc
 
         except ValueError as exc:
-            raise OllamaSummarizerError(
-                "Ollama returned invalid JSON."
-            ) from exc
+            raise OllamaSummarizerError("Ollama returned invalid JSON.") from exc
 
         if not isinstance(data, dict):
-            raise OllamaSummarizerError(
-                "Unexpected Ollama response format."
-            )
+            raise OllamaSummarizerError("Unexpected Ollama response format.")
 
         message = data.get("message")
 
         if not isinstance(message, dict):
-            raise OllamaSummarizerError(
-                "Ollama response has no message."
-            )
+            raise OllamaSummarizerError("Ollama response has no message.")
 
         content = message.get("content")
 
         if not isinstance(content, str) or not content.strip():
-            raise OllamaSummarizerError(
-                "Ollama returned an empty explanation."
-            )
+            raise OllamaSummarizerError("Ollama returned an empty explanation.")
 
         try:
             structured_output = json.loads(content)
@@ -191,15 +181,11 @@ class OllamaSummarizer:
         explanation = structured_output.get("explanation")
 
         if not isinstance(explanation, str) or not explanation.strip():
-            raise OllamaSummarizerError(
-                "Ollama returned an invalid explanation."
-            )
+            raise OllamaSummarizerError("Ollama returned an invalid explanation.")
 
         normalized = self._normalize_explanation(explanation)
 
         if not normalized:
-            raise OllamaSummarizerError(
-                "Ollama returned an empty explanation."
-            )
+            raise OllamaSummarizerError("Ollama returned an empty explanation.")
 
         return normalized

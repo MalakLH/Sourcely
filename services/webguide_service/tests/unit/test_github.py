@@ -26,9 +26,7 @@ async def test_search_returns_normalized_repositories():
 
         return httpx.Response(200, json=payload)
 
-    client = GitHubSearchClient(
-        transport=httpx.MockTransport(handler)
-    )
+    client = GitHubSearchClient(transport=httpx.MockTransport(handler))
 
     results = await client.search("FastAPI")
 
@@ -61,9 +59,7 @@ async def test_search_handles_server_error():
     def handler(request):
         return httpx.Response(503)
 
-    client = GitHubSearchClient(
-        transport=httpx.MockTransport(handler)
-    )
+    client = GitHubSearchClient(transport=httpx.MockTransport(handler))
 
     with pytest.raises(GitHubSearchError):
         await client.search("FastAPI")

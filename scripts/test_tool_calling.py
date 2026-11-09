@@ -4,7 +4,8 @@ import sys
 from langchain_core.tools import tool
 from langchain_ollama import ChatOllama
 
-# testing the tool calling capabilities with ollama and seeing if it can tell which tool is needed 
+# testing the tool calling capabilities with ollama and seeing if it can tell which tool is needed
+
 
 @tool
 def docs_expert(query: str) -> str:
@@ -49,7 +50,6 @@ def main():
     ]
 
     for query in test_queries:
-
         print(f"\nQuery: {query}")
 
         response = model_with_tools.invoke(query)

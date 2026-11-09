@@ -24,8 +24,7 @@ def _canonicalize_url(url: str) -> str:
     port = parsed.port
 
     if port and not (
-        (scheme == "https" and port == 443)
-        or (scheme == "http" and port == 80)
+        (scheme == "https" and port == 443) or (scheme == "http" and port == 80)
     ):
         netloc = f"{host}:{port}"
     else:
@@ -42,15 +41,12 @@ def _canonicalize_url(url: str) -> str:
             parsed.query,
             keep_blank_values=True,
         )
-        if not key.lower().startswith("utm_")
-        and key.lower() not in TRACKING_PARAMS
+        if not key.lower().startswith("utm_") and key.lower() not in TRACKING_PARAMS
     ]
 
     normalized_query = urlencode(query_params)
 
-    return urlunsplit(
-        (scheme, netloc, path, normalized_query, "")
-    )
+    return urlunsplit((scheme, netloc, path, normalized_query, ""))
 
 
 def filter_results(
@@ -86,22 +82,17 @@ def filter_results(
     seen_urls: set[str] = set()
 
     for result in results:
-
         if (
             normalized_sources is not None
             and result.source.casefold() not in normalized_sources
         ):
             continue
 
-        if ( 
-            min_stars is not None 
-            and result.stars is None or result.stars < min_stars
-        ):
-                continue
+        if min_stars is not None and result.stars is None or result.stars < min_stars:
+            continue
 
         if normalized_language is not None and (
-            result.language is None
-            or result.language.casefold() != normalized_language
+            result.language is None or result.language.casefold() != normalized_language
         ):
             continue
 

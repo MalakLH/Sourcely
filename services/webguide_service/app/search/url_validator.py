@@ -94,9 +94,7 @@ class URLValidator:
 
     async def validate(self, url: str) -> URLValidationResult:
         if not url.strip():
-            return URLValidationResult(
-                False, None, None, "URL cannot be empty."
-            )
+            return URLValidationResult(False, None, None, "URL cannot be empty.")
 
         current_url = url.strip()
 
@@ -108,9 +106,7 @@ class URLValidator:
             for redirect_count in range(self.max_redirects + 1):
                 error = await self._check_url(current_url)
                 if error:
-                    return URLValidationResult(
-                        False, None, current_url, error
-                    )
+                    return URLValidationResult(False, None, current_url, error)
 
                 try:
                     response = await client.head(current_url)
@@ -169,6 +165,4 @@ class URLValidator:
                     f"URL returned HTTP {status_code}.",
                 )
 
-        return URLValidationResult(
-            False, None, current_url, "URL validation failed."
-        )
+        return URLValidationResult(False, None, current_url, "URL validation failed.")

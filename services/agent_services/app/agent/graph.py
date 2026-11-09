@@ -27,7 +27,7 @@ def docs_node(state: AgentState) -> dict:
 async def web_node(state: AgentState) -> dict:
 
     result = await run_web_tool(ToolRequest(query=state["query"]))
-    
+
     return {"tool_result": result.model_dump()}
 
 

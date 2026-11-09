@@ -151,9 +151,7 @@ def rank_results(
         )
 
         ranked_results.append(
-            result.model_copy(
-                update={"ranking_score": round(final_score, 4)}
-            )
+            result.model_copy(update={"ranking_score": round(final_score, 4)})
         )
 
     return sorted(

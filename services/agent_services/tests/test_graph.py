@@ -1,4 +1,3 @@
-
 import pytest
 
 from app.agent.graph import agent_graph
@@ -18,6 +17,7 @@ def test_docs_workflow():
 
     assert result["selected_tool"] == "docs"
     assert "[STUB]" in result["answer"]
+
 
 @pytest.mark.asyncio
 async def test_web_workflow(monkeypatch):
