@@ -1,4 +1,3 @@
-
 import asyncio
 from typing import Any
 
@@ -68,10 +67,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
     # Validate URLs concurrently.
     validation_results = await asyncio.gather(
-        *[
-            validator.validate(str(result.url))
-            for result in filtered_results
-        ],
+        *[validator.validate(str(result.url)) for result in filtered_results],
         return_exceptions=True,
     )
 
@@ -79,7 +75,8 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
     for result, validation in zip(
         filtered_results,
-        validation_results, strict=False,
+        validation_results,
+        strict=False,
     ):
         if isinstance(validation, BaseException):
             continue
@@ -97,10 +94,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
     # Generate explanations for validated results.
     summaries = await asyncio.gather(
-        *[
-            summarizer.summarize(query, result)
-            for result in valid_results
-        ],
+        *[summarizer.summarize(query, result) for result in valid_results],
         return_exceptions=True,
     )
 
@@ -109,11 +103,8 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
     for result, summary in zip(valid_results, summaries, strict=False):
         if isinstance(summary, BaseException):
-            explanation = (
-                result.snippet[:300]
-                if result.snippet
-                else "No explanation available."
-            )
+            explanation = result.snippet[:300] if result.snippet else "No explanation available."
+
         else:
             explanation = summary
 
@@ -131,15 +122,11 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
         )
 
         response_lines.append(
-            f"- **{result.title}**\n"
-            f"  URL: {result.url}\n"
-            f"  Why relevant: {explanation}"
+            f"- **{result.title}**\n  URL: {result.url}\n  Why relevant: {explanation}"
         )
 
     if errors:
-        response_lines.append(
-            "\nNote: Some search providers were unavailable."
-        )
+        response_lines.append("\nNote: Some search providers were unavailable.")
 
     return ToolResult(
         status=ToolStatus.SUCCESS,
