@@ -1,3 +1,7 @@
+
+import pytest
+
+from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 from app.agent.graph import agent_graph
 
 
@@ -15,10 +19,22 @@ def test_docs_workflow():
     assert result["selected_tool"] == "docs"
     assert "[STUB]" in result["answer"]
 
+@pytest.mark.asyncio
+async def test_web_workflow(monkeypatch):
+    async def mock_run_web_tool(request: ToolRequest) -> ToolResult:
+        return ToolResult(
+            status=ToolStatus.SUCCESS,
+            tool=ToolName.WEB,
+            content="Mock Web Guide result",
+            sources=[],
+        )
 
-def test_web_workflow():
+    monkeypatch.setattr(
+        "app.agent.graph.run_web_tool",
+        mock_run_web_tool,
+    )
 
-    result = agent_graph.invoke(
+    result = await agent_graph.ainvoke(
         {
             "query": "Find GitHub repositories about RAG",
             "selected_tool": "",
@@ -28,6 +44,7 @@ def test_web_workflow():
     )
 
     assert result["selected_tool"] == "web"
+    assert result["answer"] == "Mock Web Guide result"
 
 
 def test_sandbox_workflow():
