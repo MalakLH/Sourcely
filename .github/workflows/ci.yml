@@ -41,5 +41,7 @@ jobs:
           ruff format --check app tests
 
       - name: Run tests
-        run: |
-          pytest -v
+        working-directory: services/agent_services
+        env:
+          PYTHONPATH: ${{ github.workspace }}/services/agent_services:${{ github.workspace }}/services
+        run: pytest -v
