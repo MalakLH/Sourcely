@@ -14,7 +14,6 @@ app = FastAPI(
 
 @app.get("/")
 async def root():
-
     return {
         "message": "Welcome to Sourcely!",
         "status": "running",
@@ -23,7 +22,6 @@ async def root():
 
 @app.get("/health")
 def health_check():
-
     return {
         "status": "healthy",
         "service": "agent-service",
@@ -31,8 +29,7 @@ def health_check():
 
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
-
+async def chat(request: ChatRequest):
     initial_state = {
         "query": request.message,
         "selected_tool": "",
@@ -40,7 +37,7 @@ def chat(request: ChatRequest):
         "answer": "",
     }
 
-    result = agent_graph.invoke(initial_state)
+    result = await agent_graph.ainvoke(initial_state)
 
     return ChatResponse(
         answer=result["answer"],
