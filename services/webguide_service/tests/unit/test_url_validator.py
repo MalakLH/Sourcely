@@ -1,6 +1,5 @@
 import httpx
 import pytest
-
 from app.search.url_validator import URLValidator
 
 

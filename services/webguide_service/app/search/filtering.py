@@ -2,7 +2,6 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from webguide_service.app.schema.search_result import SearchResult
 
-
 TRACKING_PARAMS = {
     "fbclid",
     "gclid",
@@ -94,16 +93,17 @@ def filter_results(
         ):
             continue
 
-        if min_stars is not None:
-            if result.stars is None or result.stars < min_stars:
+        if ( 
+            min_stars is not None 
+            and result.stars is None or result.stars < min_stars
+        ):
                 continue
 
-        if normalized_language is not None:
-            if (
-                result.language is None
-                or result.language.casefold() != normalized_language
-            ):
-                continue
+        if normalized_language is not None and (
+            result.language is None
+            or result.language.casefold() != normalized_language
+        ):
+            continue
 
         canonical_url = _canonicalize_url(str(result.url))
 

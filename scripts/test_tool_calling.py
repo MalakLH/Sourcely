@@ -1,9 +1,8 @@
 import json
 import sys
 
-from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
-
+from langchain_ollama import ChatOllama
 
 # testing the tool calling capabilities with ollama and seeing if it can tell which tool is needed 
 

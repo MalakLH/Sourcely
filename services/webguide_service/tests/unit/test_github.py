@@ -1,6 +1,5 @@
 import httpx
 import pytest
-
 from app.search.github import GitHubSearchClient, GitHubSearchError
 
 

@@ -2,13 +2,14 @@
 import asyncio
 from typing import Any
 
-from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 from webguide_service.app.search.filtering import filter_results
-from webguide_service.app.search.github import GitHubSearchClient, GitHubSearchError
+from webguide_service.app.search.github import GitHubSearchClient
 from webguide_service.app.search.ranking import rank_results
-from webguide_service.app.search.searxng import SearXNGClient, SearXNGError
-from webguide_service.app.search.summarizer import OllamaSummarizer, OllamaSummarizerError
+from webguide_service.app.search.searxng import SearXNGClient
+from webguide_service.app.search.summarizer import OllamaSummarizer
 from webguide_service.app.search.url_validator import URLValidator
+
+from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 
 async def run_web_tool(request: ToolRequest) -> ToolResult:
@@ -78,7 +79,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
     for result, validation in zip(
         filtered_results,
-        validation_results,
+        validation_results, strict=False,
     ):
         if isinstance(validation, BaseException):
             continue
@@ -106,7 +107,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
     sources: list[dict[str, Any]] = []
     response_lines = ["Here are the most relevant web resources:\n"]
 
-    for result, summary in zip(valid_results, summaries):
+    for result, summary in zip(valid_results, summaries, strict=False):
         if isinstance(summary, BaseException):
             explanation = (
                 result.snippet[:300]

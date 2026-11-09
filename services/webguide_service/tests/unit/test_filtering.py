@@ -1,5 +1,4 @@
 import pytest
-
 from app.schema.search_result import SearchResult
 from app.search.filtering import filter_results
 

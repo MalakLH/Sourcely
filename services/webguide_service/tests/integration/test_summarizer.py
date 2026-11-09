@@ -1,6 +1,5 @@
 
 import pytest
-
 from app.schema.search_result import SearchResult
 from app.search.summarizer import OllamaSummarizer
 

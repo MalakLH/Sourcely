@@ -1,5 +1,4 @@
 import pytest
-
 from app.search.filtering import filter_results
 from app.search.ranking import rank_results
 from app.search.searxng import SearXNGClient

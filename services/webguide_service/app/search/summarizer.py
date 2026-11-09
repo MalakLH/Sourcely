@@ -3,9 +3,7 @@ import json
 import os
 import re
 
-
 import httpx
-
 from webguide_service.app.schema.search_result import SearchResult
 
 

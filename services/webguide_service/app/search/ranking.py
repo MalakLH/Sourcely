@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
 from webguide_service.app.schema.search_result import SearchResult
@@ -104,7 +104,7 @@ def _recency_score(
         return 0.5
 
     if published.tzinfo is None:
-        published = published.replace(tzinfo=timezone.utc)
+        published = published.replace(tzinfo=UTC)
 
     age_days = max((now - published).total_seconds() / 86400, 0)
 
@@ -133,10 +133,10 @@ def rank_results(
 ) -> list[SearchResult]:
     """Calculate ranking scores and return results from best to worst."""
 
-    current_time = now or datetime.now(timezone.utc)
+    current_time = now or datetime.now(UTC)
 
     if current_time.tzinfo is None:
-        current_time = current_time.replace(tzinfo=timezone.utc)
+        current_time = current_time.replace(tzinfo=UTC)
 
     ranking_weights = weights or RankingWeights()
 

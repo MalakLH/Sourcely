@@ -1,5 +1,4 @@
 import pytest
-
 from app.search.github import GitHubSearchClient
 
 

@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
-
 from app.schema.search_result import SearchResult
 from app.search.ranking import RankingWeights, rank_results
 
-
-NOW = datetime(2026, 11, 8, tzinfo=timezone.utc)
+NOW = datetime(2026, 11, 8, tzinfo=UTC)
 
 
 def make_result(
