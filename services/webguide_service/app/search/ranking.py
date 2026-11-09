@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
-from app.schema.search_result import SearchResult
+from webguide_service.app.schema.search_result import SearchResult
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ import re
 
 import httpx
 
-from app.schema.search_result import SearchResult
+from webguide_service.app.schema.search_result import SearchResult
 
 
 class OllamaSummarizerError(Exception):

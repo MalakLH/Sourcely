@@ -1,6 +1,6 @@
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from app.schema.search_result import SearchResult
+from webguide_service.app.schema.search_result import SearchResult
 
 
 TRACKING_PARAMS = {
