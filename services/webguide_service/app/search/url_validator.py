@@ -61,7 +61,7 @@ class URLValidator:
             parsed = urlsplit(url)
             hostname = parsed.hostname
             # Accessing .port also validates the port syntax.
-            parsed.port
+            _ = parsed.port
         except ValueError:
             return "Malformed URL."
 

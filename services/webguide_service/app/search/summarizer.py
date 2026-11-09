@@ -2,6 +2,7 @@
 import json
 import os
 import re
+from typing import ClassVar
 
 import httpx
 from webguide_service.app.schema.search_result import SearchResult
@@ -12,7 +13,7 @@ class OllamaSummarizerError(Exception):
 
 
 class OllamaSummarizer:
-    RESPONSE_SCHEMA = {
+    RESPONSE_SCHEMA: ClassVar[dict] = {
         "type": "object",
         "properties": {
             "explanation": {
