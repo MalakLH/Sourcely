@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+docker
+
+[dev]
+pytest
+pytest-asyncio
+httpx
+ruff
