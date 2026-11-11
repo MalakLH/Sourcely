@@ -1,4 +1,6 @@
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class SandboxSettings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -21,6 +23,8 @@ class SandboxSettings(BaseSettings):
     max_code_size: int = 12_000
 
     output_limit: int = 16_384
+
+    api_key: SecretStr = SecretStr("")
 
 
 settings = SandboxSettings()

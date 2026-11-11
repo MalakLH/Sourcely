@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from app.api import routes
 from app.main import app
@@ -46,6 +47,7 @@ def test_execute_success(monkeypatch):
             "code": "print(1 + 1)",
             "timeout": 5,
         },
+        headers={"X-Sandbox-Token": "test-sandbox-token"}
     )
 
     assert response.status_code == 200
@@ -78,6 +80,61 @@ def test_execute_rejects_invalid_requests(payload):
     response = client.post(
         "/api/v1/sandbox/execute",
         json=payload,
+        headers={"X-Sandbox-Token": "test-sandbox-token"}
     )
 
     assert response.status_code == 422
+
+@pytest.fixture(autouse=True)
+def configure_test_api_key(monkeypatch):
+    monkeypatch.setattr(
+        routes.settings,
+        "api_key",
+        SecretStr("test-sandbox-token"),
+    )
+
+def test_execution_rejects_missing_token():
+    response = client.post(
+        "/api/v1/sandbox/execute",
+        json={
+            "language": "python",
+            "code": "print(1 + 1)",
+            "timeout": 5,
+        },
+    )
+
+    assert response.status_code == 401
+
+def test_execution_rejects_invalid_token():
+    response = client.post(
+        "/api/v1/sandbox/execute",
+        json={
+            "language": "python",
+            "code": "print(1 + 1)",
+            "timeout": 5,
+        },
+        headers={"X-Sandbox-Token": "wrong-token"},
+    )
+
+    assert response.status_code == 401
+
+def test_execution_returns_503_when_api_key_is_not_configured(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        routes.settings,
+        "api_key",
+        SecretStr(""),
+    )
+
+    response = client.post(
+        "/api/v1/sandbox/execute",
+        json={
+            "language": "python",
+            "code": "print(1 + 1)",
+            "timeout": 5,
+        },
+        headers={"X-Sandbox-Token": "test-sandbox-token"},
+    )
+
+    assert response.status_code == 503
