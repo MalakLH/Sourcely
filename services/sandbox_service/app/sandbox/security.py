@@ -18,7 +18,7 @@ def get_container_security_config() -> dict:
         "working_dir": "/tmp",
         "tmpfs": {"/tmp": ("rw,noexec,nosuid,nodev,size=16m,uid=65534,gid=65534")},
         # Network isolation
-        "network_disabled": True,
+        "network_mode": "none",
         # No host filesystem mounts
         "volumes": {},
     }

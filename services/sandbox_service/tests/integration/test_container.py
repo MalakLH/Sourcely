@@ -1,4 +1,3 @@
-
 import docker
 import pytest
 from docker.errors import DockerException
@@ -35,9 +34,7 @@ def assert_container_was_removed(docker_client, container_id):
     )
 
     matching_containers = [
-        container
-        for container in containers
-        if container.id.startswith(container_id)
+        container for container in containers if container.id.startswith(container_id)
     ]
 
     assert matching_containers == []

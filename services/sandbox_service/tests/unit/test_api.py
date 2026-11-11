@@ -1,11 +1,9 @@
-
 import pytest
 from fastapi.testclient import TestClient
 
 from app.api import routes
 from app.main import app
 from app.schemas.response import ExecutionResponse
-
 
 client = TestClient(app)
 
