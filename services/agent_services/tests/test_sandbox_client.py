@@ -1,4 +1,3 @@
-
 import httpx
 import pytest
 
@@ -30,6 +29,7 @@ def test_execute_success(monkeypatch):
                 "container_id": "test-container",
             },
         )
+
     monkeypatch.setattr(
         "app.clients.sandbox_client.httpx.post",
         fake_post,
@@ -45,9 +45,7 @@ def test_execute_success(monkeypatch):
     assert result["status"] == "success"
     assert result["stdout"] == "2\n"
 
-    assert captured["url"] == (
-        "http://sandbox-service:8001/api/v1/sandbox/execute"
-    )
+    assert captured["url"] == ("http://sandbox-service:8001/api/v1/sandbox/execute")
 
     assert captured["kwargs"]["json"]["code"] == "print(1 + 1)"
     assert captured["kwargs"]["json"]["language"] == "python"

@@ -1,4 +1,3 @@
-
 import os
 from typing import Any
 
@@ -16,7 +15,8 @@ class SandboxClient:
         api_key: str | None = None,
     ):
         self.base_url = (
-            base_url or os.getenv(
+            base_url
+            or os.getenv(
                 "SANDBOX_BASE_URL",
                 "http://localhost:8001",
             )
@@ -31,14 +31,10 @@ class SandboxClient:
     ) -> dict[str, Any]:
 
         if not self.api_key:
-            raise SandboxClientError(
-                "Sandbox API key is not configured."
-            )
+            raise SandboxClientError("Sandbox API key is not configured.")
 
         if not code or not code.strip():
-            raise SandboxClientError(
-                "Python code cannot be empty."
-            )
+            raise SandboxClientError("Python code cannot be empty.")
 
         payload = {
             "language": "python",
@@ -67,23 +63,15 @@ class SandboxClient:
             result = response.json()
 
             if not isinstance(result, dict):
-                raise SandboxClientError(
-                    "Sandbox returned an invalid response."
-                )
+                raise SandboxClientError("Sandbox returned an invalid response.")
 
             return result
 
         except httpx.TimeoutException as exc:
-            raise SandboxClientError(
-                "Sandbox request timed out."
-            ) from exc
+            raise SandboxClientError("Sandbox request timed out.") from exc
 
         except httpx.HTTPStatusError as exc:
-            raise SandboxClientError(
-                f"Sandbox returned HTTP {exc.response.status_code}."
-            ) from exc
+            raise SandboxClientError(f"Sandbox returned HTTP {exc.response.status_code}.") from exc
 
         except httpx.RequestError as exc:
-            raise SandboxClientError(
-                "Could not connect to the sandbox service."
-            ) from exc
+            raise SandboxClientError("Could not connect to the sandbox service.") from exc
