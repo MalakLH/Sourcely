@@ -88,9 +88,7 @@ def filter_results(
         ):
             continue
 
-        if min_stars is not None and (
-            result.stars is None or result.stars < min_stars
-        ):
+        if min_stars is not None and (result.stars is None or result.stars < min_stars):
             continue
 
         if normalized_language is not None and (

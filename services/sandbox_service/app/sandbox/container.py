@@ -1,4 +1,3 @@
-
 import time
 from dataclasses import dataclass
 
@@ -20,7 +19,6 @@ class ContainerResult:
 
 
 class DockerContainerManager:
-
     def __init__(self):
         self.client = docker.from_env()
 
@@ -84,22 +82,16 @@ class DockerContainerManager:
                 stderr=True,
             ).decode("utf-8", errors="replace")
 
-            exit_code = container.attrs.get(
-                "State", {}
-            ).get("ExitCode")
+            exit_code = container.attrs.get("State", {}).get("ExitCode")
 
             # Bound the response size.
-            stdout = stdout[:settings.output_limit]
-            stderr = stderr[:settings.output_limit]
+            stdout = stdout[: settings.output_limit]
+            stderr = stderr[: settings.output_limit]
 
-            duration_ms = (
-                time.monotonic() - start_time
-            ) * 1000
+            duration_ms = (time.monotonic() - start_time) * 1000
 
             return ContainerResult(
-                status="timeout" if timed_out else (
-                    "success" if exit_code == 0 else "failed"
-                ),
+                status="timeout" if timed_out else ("success" if exit_code == 0 else "failed"),
                 stdout=stdout,
                 stderr=stderr,
                 exit_code=exit_code,
@@ -113,9 +105,7 @@ class DockerContainerManager:
                 stdout="",
                 stderr=f"Container execution error: {exc}",
                 exit_code=None,
-                duration_ms=(
-                    time.monotonic() - start_time
-                ) * 1000,
+                duration_ms=(time.monotonic() - start_time) * 1000,
                 container_id=None,
             )
 
