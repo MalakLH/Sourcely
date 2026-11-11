@@ -103,3 +103,109 @@ def test_docker_applies_isolation_and_resource_configuration(
     finally:
         if container is not None:
             container.remove(force=True)
+
+
+def test_runtime_cgroup_resource_limits(container_manager):
+    code = """
+from pathlib import Path
+
+files = [
+    "cpu.max",
+    "memory.max",
+    "memory.swap.max",
+    "pids.max",
+]
+
+for filename in files:
+    path = Path("/sys/fs/cgroup") / filename
+
+    if path.exists():
+        print(f"{filename}={path.read_text().strip()}")
+    else:
+        print(f"{filename}=UNAVAILABLE")
+"""
+
+    result = container_manager.execute(code=code, timeout=5)
+
+    assert result.status == "success"
+
+    # Extract the cgroup values reported by the container.
+    limits = {}
+
+    for line in result.stdout.splitlines():
+        if "=" in line:
+            key, value = line.split("=", 1)
+            limits[key] = value
+
+    # CPU: 0.5 CPU means 50,000 / 100,000.
+    assert "cpu.max" in limits
+    quota, period = map(int, limits["cpu.max"].split())
+    assert quota > 0
+    assert period > 0
+
+    actual_cpu_limit = quota / period
+    assert actual_cpu_limit == pytest.approx(settings.cpu_limit)
+
+    # Memory: verify the kernel's memory limit.
+    assert int(limits["memory.max"]) == 128 * 1024 * 1024
+
+    # Swap: no additional swap allowance.
+    assert int(limits["memory.swap.max"]) == 0
+
+    # Process count.
+    assert int(limits["pids.max"]) == settings.pids_limit
+
+
+def test_execution_container_has_no_host_mounts_or_devices(
+    docker_client,
+):
+    container = None
+
+    try:
+        container = docker_client.containers.create(
+            image=settings.docker_image,
+            command=["python", "-I", "-B", "-c", "pass"],
+            detach=True,
+            labels={"service": "sourcely-isolation-test"},
+            **get_container_security_config(),
+        )
+
+        container.reload()
+        host_config = container.attrs["HostConfig"]
+
+        # No host bind mounts.
+        assert not host_config.get("Binds")
+
+        # No explicitly configured devices.
+        assert not host_config.get("Devices")
+
+        # No privileged execution.
+        assert host_config["Privileged"] is False
+
+        # No Docker socket or other host mount.
+        mounts = container.attrs.get("Mounts", [])
+        assert mounts == []
+
+    finally:
+        if container is not None:
+            container.remove(force=True)
+
+
+def test_default_seccomp_profile_is_active(container_manager):
+    code = """
+from pathlib import Path
+
+status = Path("/proc/self/status").read_text()
+
+for line in status.splitlines():
+    if line.startswith("Seccomp:"):
+        print(line)
+        break
+"""
+
+    result = container_manager.execute(code=code, timeout=5)
+
+    assert result.status == "success"
+
+    # Seccomp mode 2 means a seccomp filter is active.
+    assert "Seccomp:\t2" in result.stdout

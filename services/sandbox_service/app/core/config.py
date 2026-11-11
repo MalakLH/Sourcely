@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 class SandboxSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="SANDBOX_",
