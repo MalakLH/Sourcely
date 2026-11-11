@@ -1,13 +1,19 @@
 from app.tools.base import ToolName
 
-# Initially, use a deterministic router to test whether the architecture works.
 
+def route_request(
+    query: str,
+    has_code: bool = False,
+) -> ToolName:
 
-def route_request(query: str) -> ToolName:
+    # Explicit code takes priority: it needs the sandbox.
+    if has_code:
+        return ToolName.SANDBOX
 
     query_lower = query.lower()
 
     sandbox_keywords = [
+        "run this code",
         "run code",
         "execute code",
         "test this code",

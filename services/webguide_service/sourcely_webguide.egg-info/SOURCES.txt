@@ -1,0 +1,15 @@
+pyproject.toml
+./__init__.py
+./app/__init__.py
+./app/schema/search_result.py
+./app/search/filtering.py
+./app/search/github.py
+./app/search/ranking.py
+./app/search/searxng.py
+./app/search/summarizer.py
+./app/search/url_validator.py
+sourcely_webguide.egg-info/PKG-INFO
+sourcely_webguide.egg-info/SOURCES.txt
+sourcely_webguide.egg-info/dependency_links.txt
+sourcely_webguide.egg-info/requires.txt
+sourcely_webguide.egg-info/top_level.txt

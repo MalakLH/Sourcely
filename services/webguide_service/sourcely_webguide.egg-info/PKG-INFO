@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: sourcely-webguide
+Version: 0.1.0
+Summary: Sourcely web search and research pipeline
+Requires-Python: >=3.11
+Requires-Dist: httpx
+Requires-Dist: pydantic

@@ -11,35 +11,41 @@ from app.tools.web_tool import run_web_tool
 
 
 def router_node(state: AgentState) -> dict:
-
-    selected_tool = route_request(state["query"])
+    selected_tool = route_request(
+        state["query"],
+        has_code=bool(state.get("code")),
+    )
 
     return {"selected_tool": selected_tool.value}
 
 
 def docs_node(state: AgentState) -> dict:
-
     result = run_docs_tool(ToolRequest(query=state["query"]))
 
     return {"tool_result": result.model_dump()}
 
 
 async def web_node(state: AgentState) -> dict:
-
     result = await run_web_tool(ToolRequest(query=state["query"]))
 
     return {"tool_result": result.model_dump()}
 
 
 def sandbox_node(state: AgentState) -> dict:
-
-    result = run_sandbox_tool(ToolRequest(query=state["query"]))
+    result = run_sandbox_tool(
+        ToolRequest(
+            query=state["query"],
+            metadata={
+                "code": state.get("code"),
+                "timeout": state.get("timeout", 5),
+            },
+        )
+    )
 
     return {"tool_result": result.model_dump()}
 
 
 def final_node(state: AgentState) -> dict:
-
     result = state["tool_result"]
 
     answer = result["content"] if result else "No result available."
@@ -50,12 +56,10 @@ def final_node(state: AgentState) -> dict:
 def select_tool(
     state: AgentState,
 ) -> Literal["docs", "web", "sandbox"]:
-
     return state["selected_tool"]
 
 
 def build_graph():
-
     builder = StateGraph(AgentState)
 
     builder.add_node("router", router_node)

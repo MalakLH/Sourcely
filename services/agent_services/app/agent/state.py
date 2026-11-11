@@ -1,7 +1,4 @@
-from typing import TypedDict
-
-# LangGraph works with a shared state that moves through nodes
-# Every node can read the state and return updates to it
+from typing import NotRequired, TypedDict
 
 
 class AgentState(TypedDict):
@@ -9,3 +6,7 @@ class AgentState(TypedDict):
     selected_tool: str
     tool_result: dict | None
     answer: str
+
+    # Optional execution inputs
+    code: NotRequired[str | None]
+    timeout: NotRequired[int]

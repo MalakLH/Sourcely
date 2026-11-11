@@ -1,4 +1,3 @@
-
 from unittest.mock import Mock
 
 from app.tools.base import ToolName, ToolRequest, ToolStatus
@@ -136,9 +135,7 @@ def test_sandbox_tool_handles_timeout():
 def test_sandbox_tool_handles_communication_failure():
     from app.clients.sandbox_client import SandboxClientError
 
-    client = create_fake_client(
-        side_effect=SandboxClientError("Could not connect")
-    )
+    client = create_fake_client(side_effect=SandboxClientError("Could not connect"))
 
     request = ToolRequest(
         query="Run this code",

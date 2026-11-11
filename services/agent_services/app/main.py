@@ -32,6 +32,8 @@ def health_check():
 async def chat(request: ChatRequest):
     initial_state = {
         "query": request.message,
+        "code": request.code,
+        "timeout": request.timeout,
         "selected_tool": "",
         "tool_result": None,
         "answer": "",
