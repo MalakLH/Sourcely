@@ -33,4 +33,4 @@ def test_container_capabilities_are_dropped():
 def test_container_network_is_disabled():
     config = get_container_security_config()
 
-    assert config["network_disabled"] is True
+    assert config["network_mode"] == "none"

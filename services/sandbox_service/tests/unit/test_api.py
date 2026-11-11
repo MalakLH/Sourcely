@@ -47,7 +47,7 @@ def test_execute_success(monkeypatch):
             "code": "print(1 + 1)",
             "timeout": 5,
         },
-        headers={"X-Sandbox-Token": "test-sandbox-token"}
+        headers={"X-Sandbox-Token": "test-sandbox-token"},
     )
 
     assert response.status_code == 200
@@ -78,12 +78,11 @@ def test_execute_success(monkeypatch):
 )
 def test_execute_rejects_invalid_requests(payload):
     response = client.post(
-        "/api/v1/sandbox/execute",
-        json=payload,
-        headers={"X-Sandbox-Token": "test-sandbox-token"}
+        "/api/v1/sandbox/execute", json=payload, headers={"X-Sandbox-Token": "test-sandbox-token"}
     )
 
     assert response.status_code == 422
+
 
 @pytest.fixture(autouse=True)
 def configure_test_api_key(monkeypatch):
@@ -92,6 +91,7 @@ def configure_test_api_key(monkeypatch):
         "api_key",
         SecretStr("test-sandbox-token"),
     )
+
 
 def test_execution_rejects_missing_token():
     response = client.post(
@@ -105,6 +105,7 @@ def test_execution_rejects_missing_token():
 
     assert response.status_code == 401
 
+
 def test_execution_rejects_invalid_token():
     response = client.post(
         "/api/v1/sandbox/execute",
@@ -117,6 +118,7 @@ def test_execution_rejects_invalid_token():
     )
 
     assert response.status_code == 401
+
 
 def test_execution_returns_503_when_api_key_is_not_configured(
     monkeypatch,
