@@ -15,6 +15,7 @@ app/schemas/response.py
 app/tools/__init__.py
 app/tools/base.py
 app/tools/docs_tool.py
+app/tools/sandbox_tool.py
 app/tools/web_tool.py
 sourcely_agent.egg-info/PKG-INFO
 sourcely_agent.egg-info/SOURCES.txt

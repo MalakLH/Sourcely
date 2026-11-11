@@ -17,6 +17,7 @@ dependencies = [
     "langchain-ollama",
     "pydantic",
     "pydantic-settings",
+    "httpx",
 ]
 
 [project.optional-dependencies]

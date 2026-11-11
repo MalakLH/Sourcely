@@ -10,6 +10,7 @@ Requires-Dist: langchain-core
 Requires-Dist: langchain-ollama
 Requires-Dist: pydantic
 Requires-Dist: pydantic-settings
+Requires-Dist: httpx
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: pytest-asyncio; extra == "dev"

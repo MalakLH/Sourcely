@@ -5,6 +5,7 @@ langchain-core
 langchain-ollama
 pydantic
 pydantic-settings
+httpx
 
 [dev]
 pytest
