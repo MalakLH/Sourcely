@@ -20,30 +20,35 @@ class ContainerResult:
 
 class DockerContainerManager:
     def __init__(self):
-        self.client = docker.from_env()
+        # Connect to Docker only when execution is requested.
+        self.client = None
+
+    def _get_client(self):
+        if self.client is None:
+            self.client = docker.from_env()
+        return self.client
 
     def ensure_image(self) -> None:
+        client = self._get_client()
+
         try:
-            self.client.images.get(settings.docker_image)
+            client.images.get(settings.docker_image)
         except ImageNotFound:
-            self.client.images.pull(settings.docker_image)
+            client.images.pull(settings.docker_image)
 
     def execute(self, code: str, timeout: int) -> ContainerResult:
         container = None
-        start_time = time.monotonic()
+        start_time = None
 
         try:
+            # Prepare the image before starting the execution timer.
             self.ensure_image()
 
-            container = self.client.containers.create(
+            client = self._get_client()
+
+            container = client.containers.create(
                 image=settings.docker_image,
-                command=[
-                    "python",
-                    "-I",
-                    "-B",
-                    "-c",
-                    code,
-                ],
+                command=["python", "-I", "-B", "-c", code],
                 detach=True,
                 stdin_open=False,
                 tty=False,
@@ -51,6 +56,8 @@ class DockerContainerManager:
                 **get_container_security_config(),
             )
 
+            # The timeout applies to code execution, not image preparation.
+            start_time = time.monotonic()
             container.start()
 
             timed_out = False
@@ -84,7 +91,6 @@ class DockerContainerManager:
 
             exit_code = container.attrs.get("State", {}).get("ExitCode")
 
-            # Bound the response size.
             stdout = stdout[: settings.output_limit]
             stderr = stderr[: settings.output_limit]
 
@@ -100,12 +106,14 @@ class DockerContainerManager:
             )
 
         except DockerException as exc:
+            duration_ms = (time.monotonic() - start_time) * 1000 if start_time is not None else 0
+
             return ContainerResult(
                 status="failed",
                 stdout="",
                 stderr=f"Container execution error: {exc}",
                 exit_code=None,
-                duration_ms=(time.monotonic() - start_time) * 1000,
+                duration_ms=duration_ms,
                 container_id=None,
             )
 
@@ -117,4 +125,6 @@ class DockerContainerManager:
                     pass
 
     def close(self) -> None:
-        self.client.close()
+        if self.client is not None:
+            self.client.close()
+            self.client = None
