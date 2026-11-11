@@ -1,74 +1,47 @@
+name: Sourcely CI
 
-services:
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
 
-  agent-service:
-    build:
-      context: ../..
-      dockerfile: services/agent_services/Dockerfile
+  pull_request:
+    branches:
+      - main
 
-    container_name: sourcely-agent
+jobs:
 
-    ports:
-      - "8000:8000"
+  test-agent:
 
-    env_file:
-      - ../../.env
+    runs-on: ubuntu-latest
 
-    environment:
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
-      SANDBOX_BASE_URL: http://sandbox-service:8001
+    defaults:
+      run:
+        working-directory: services/agent_services
 
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    steps:
 
-    volumes:
-      - ../../services/agent_services/app:/app/app
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    command: >
-      uvicorn app.main:app
-      --host 0.0.0.0
-      --port 8000
-      --reload
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    depends_on:
-      - sandbox-service
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
 
-    restart: unless-stopped
+      - name: Run Ruff
+        run: |
+          ruff check app tests
+          ruff format --check app tests
 
-  sandbox-service:
-    build:
-      context: ../..
-      dockerfile: services/sandbox_service/dockerfile
-
-    container_name: sourcely-sandbox
-
-    env_file:
-      - ../../.env
-
-    environment:
-      DOCKER_HOST: unix:///var/run/docker.sock
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-    expose:
-      - "8001"
-
-    restart: unless-stopped
-
-  searxng:
-    image: searxng/searxng:latest
-
-    container_name: sourcely-searxng
-
-    ports:
-      - "8080:8080"
-
-    volumes:
-      - ./searxng:/etc/searxng:rw
-
-    environment:
-      SEARXNG_BASE_URL: http://localhost:8080/
-      SEARXNG_SECRET: ${SEARXNG_SECRET}
-
-    restart: unless-stopped
+      - name: Run tests
+        working-directory: services/agent_services
+        env:
+          PYTHONPATH: ${{ github.workspace }}/services/agent_services:${{ github.workspace }}/services
+        run: pytest -v

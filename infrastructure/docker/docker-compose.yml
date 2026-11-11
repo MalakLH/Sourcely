@@ -1,3 +1,4 @@
+
 services:
 
   agent-service:
@@ -15,6 +16,7 @@ services:
 
     environment:
       OLLAMA_BASE_URL: http://host.docker.internal:11434
+      SANDBOX_BASE_URL: http://sandbox-service:8001
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -27,6 +29,30 @@ services:
       --host 0.0.0.0
       --port 8000
       --reload
+
+    depends_on:
+      - sandbox-service
+
+    restart: unless-stopped
+
+  sandbox-service:
+    build:
+      context: ../..
+      dockerfile: services/sandbox_service/dockerfile
+
+    container_name: sourcely-sandbox
+
+    env_file:
+      - ../../.env
+
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    expose:
+      - "8001"
 
     restart: unless-stopped
 
