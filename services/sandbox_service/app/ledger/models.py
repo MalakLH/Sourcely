@@ -1,11 +1,9 @@
-
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
-
 
 GENESIS_HASH = "0" * 64
 
@@ -36,14 +34,12 @@ class ExecutionRecord:
     ) -> "ExecutionRecord":
         record = cls(
             execution_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             status=status,
             exit_code=exit_code,
             duration_ms=round(duration_ms, 3),
             code_hash=hashlib.sha256(code.encode("utf-8")).hexdigest(),
-            output_hash=hashlib.sha256(
-                f"{stdout}\0{stderr}".encode("utf-8")
-            ).hexdigest(),
+            output_hash=hashlib.sha256(f"{stdout}\0{stderr}".encode()).hexdigest(),
             previous_hash=previous_hash,
         )
 
@@ -73,6 +69,4 @@ def canonical_json(record: ExecutionRecord) -> str:
 
 def calculate_record_hash(record: ExecutionRecord) -> str:
     """Calculate the SHA-256 hash of the canonical record representation."""
-    return hashlib.sha256(
-        canonical_json(record).encode("utf-8")
-    ).hexdigest()
+    return hashlib.sha256(canonical_json(record).encode("utf-8")).hexdigest()
