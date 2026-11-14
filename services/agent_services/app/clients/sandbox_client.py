@@ -53,7 +53,7 @@ class SandboxClient:
                 json=payload,
                 headers=headers,
                 timeout=httpx.Timeout(
-                    timeout=timeout + 5,
+                    timeout=30.0,
                     connect=3.0,
                 ),
             )
