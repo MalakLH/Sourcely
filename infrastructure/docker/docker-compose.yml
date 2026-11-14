@@ -47,9 +47,11 @@ services:
 
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock
+      SANDBOX_LEDGER_PATH: /data/execution_ledger.db
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - sandbox_ledger_data:/data
 
     expose:
       - "8001"
@@ -72,3 +74,6 @@ services:
       SEARXNG_SECRET: ${SEARXNG_SECRET}
 
     restart: unless-stopped
+
+volumes:
+  sandbox_ledger_data:
