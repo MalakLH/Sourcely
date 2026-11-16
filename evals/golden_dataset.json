@@ -1,0 +1,427 @@
+{
+  "metadata": {
+    "dataset_name": "Kubernetes Documentation QA",
+    "version": "1.0",
+    "created_at": "2026-11-08",
+    "description": "Golden dataset for evaluating Docs Expert RAG system on Kubernetes documentation",
+    "total_questions": 52
+  },
+  "test_cases": [
+    {
+      "id": "k8s-001",
+      "category": "pods_basics",
+      "question": "What is a Pod in Kubernetes?",
+      "expected_keywords": ["smallest deployable unit", "group of containers", "shared storage", "shared network"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-002",
+      "category": "pods_lifecycle",
+      "question": "What are the possible phases in a Pod's lifecycle?",
+      "expected_keywords": ["Pending", "Running", "Succeeded", "Failed", "Unknown"],
+      "expected_sources_contain": ["pods", "lifecycle"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-003",
+      "category": "pods_lifecycle",
+      "question": "What does the Pending phase mean for a Pod?",
+      "expected_keywords": ["accepted", "not been set up", "not ready to run"],
+      "expected_sources_contain": ["pods", "phase"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-004",
+      "category": "pods_lifecycle",
+      "question": "When does a Pod enter the Running phase?",
+      "expected_keywords": ["bound to a node", "containers have been created", "at least one container"],
+      "expected_sources_contain": ["pods", "running"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-005",
+      "category": "pods_templates",
+      "question": "What are Pod templates used for?",
+      "expected_keywords": ["specifications", "creating Pods", "workload resources", "Deployments", "Jobs"],
+      "expected_sources_contain": ["pods", "template"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-006",
+      "category": "services_basics",
+      "question": "What is a Kubernetes Service?",
+      "expected_keywords": ["abstract way", "expose an application", "network service", "set of Pods"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-007",
+      "category": "services_types",
+      "question": "What are the different types of Kubernetes Services?",
+      "expected_keywords": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+      "expected_sources_contain": ["services", "type"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-008",
+      "category": "services_types",
+      "question": "What does ClusterIP service type do?",
+      "expected_keywords": ["cluster-internal IP", "only reachable from within the cluster", "default"],
+      "expected_sources_contain": ["services", "clusterip"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-009",
+      "category": "services_types",
+      "question": "How does a NodePort Service work?",
+      "expected_keywords": ["Node's IP", "static port", "ClusterIP Service", "automatically created"],
+      "expected_sources_contain": ["services", "nodeport"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-010",
+      "category": "services_types",
+      "question": "What is a LoadBalancer Service?",
+      "expected_keywords": ["expose", "externally", "cloud provider", "load balancer"],
+      "expected_sources_contain": ["services", "loadbalancer"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-011",
+      "category": "services_discovery",
+      "question": "What are the two primary modes of Service discovery in Kubernetes?",
+      "expected_keywords": ["environment variables", "DNS"],
+      "expected_sources_contain": ["services", "discovery"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-012",
+      "category": "deployments_basics",
+      "question": "What is a Kubernetes Deployment?",
+      "expected_keywords": ["declarative updates", "Pods", "ReplicaSets", "desired state"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-013",
+      "category": "deployments_use_cases",
+      "question": "What are typical use cases for Deployments?",
+      "expected_keywords": ["rollout", "declare new state", "rollback", "scale up", "pause"],
+      "expected_sources_contain": ["deployments", "use case"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-014",
+      "category": "deployments_updates",
+      "question": "What triggers a Deployment rollout?",
+      "expected_keywords": ["Pod template", "spec.template", "changed"],
+      "expected_sources_contain": ["deployments", "rollout"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-015",
+      "category": "deployments_creation",
+      "question": "How can Deployments be created?",
+      "expected_keywords": ["kubectl", "YAML manifests", "manifest approach", "recommended"],
+      "expected_sources_contain": ["deployments", "creating"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-016",
+      "category": "pods_advanced",
+      "question": "Can multiple containers run in a single Pod?",
+      "expected_keywords": ["group of one or more containers", "yes"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-017",
+      "category": "pods_lifecycle",
+      "question": "What does the Failed phase indicate?",
+      "expected_keywords": ["All containers", "terminated", "at least one", "failure"],
+      "expected_sources_contain": ["pods", "failed"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-018",
+      "category": "pods_lifecycle",
+      "question": "What does the Succeeded phase mean?",
+      "expected_keywords": ["All containers", "terminated in success", "will not be restarted"],
+      "expected_sources_contain": ["pods", "succeeded"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-019",
+      "category": "services_basics",
+      "question": "Do Pods get their own IP addresses in Kubernetes?",
+      "expected_keywords": ["own IP addresses", "yes", "single DNS name"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-020",
+      "category": "services_types",
+      "question": "What does ExternalName service type do?",
+      "expected_keywords": ["maps", "externalName field", "CNAME record"],
+      "expected_sources_contain": ["services", "externalname"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "k8s-021",
+      "category": "deployments_basics",
+      "question": "Does a Deployment create ReplicaSets?",
+      "expected_keywords": ["creates a ReplicaSet", "yes", "bring up", "Pods"],
+      "expected_sources_contain": ["deployments", "replicaset"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-022",
+      "category": "deployments_use_cases",
+      "question": "Can you rollback a Deployment?",
+      "expected_keywords": ["rollback", "earlier", "revision", "yes"],
+      "expected_sources_contain": ["deployments", "rollback"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-023",
+      "category": "pods_networking",
+      "question": "Do containers in a Pod share network resources?",
+      "expected_keywords": ["shared", "network resources", "yes"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-024",
+      "category": "pods_storage",
+      "question": "Do containers in a Pod share storage?",
+      "expected_keywords": ["shared storage", "yes"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-025",
+      "category": "services_basics",
+      "question": "Does Kubernetes provide load balancing for Services?",
+      "expected_keywords": ["load-balance", "yes", "across"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-026",
+      "category": "services_basics",
+      "question": "Do you need to modify your application to use Kubernetes service discovery?",
+      "expected_keywords": ["don't need to modify", "no", "unfamiliar service discovery"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-027",
+      "category": "deployments_updates",
+      "question": "Does scaling a Deployment trigger a rollout?",
+      "expected_keywords": ["do not trigger", "no", "scaling"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-028",
+      "category": "pods_templates",
+      "question": "Which workload resources use Pod templates?",
+      "expected_keywords": ["Deployments", "Jobs", "DaemonSets"],
+      "expected_sources_contain": ["pods", "template"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-029",
+      "category": "pods_lifecycle",
+      "question": "What causes a Pod to be in the Unknown phase?",
+      "expected_keywords": ["state", "could not be obtained", "some reason"],
+      "expected_sources_contain": ["pods", "unknown"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "k8s-030",
+      "category": "services_types",
+      "question": "What is the default ServiceType in Kubernetes?",
+      "expected_keywords": ["ClusterIP", "default"],
+      "expected_sources_contain": ["services", "clusterip"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-031",
+      "category": "deployments_creation",
+      "question": "How many nginx Pods does the example Deployment create?",
+      "expected_keywords": ["three", "3", "nginx"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-032",
+      "category": "deployments_basics",
+      "question": "What controller changes the actual state to the desired state in a Deployment?",
+      "expected_keywords": ["Deployment Controller", "controlled rate"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-033",
+      "category": "pods_basics",
+      "question": "Are Pods the largest or smallest deployable units in Kubernetes?",
+      "expected_keywords": ["smallest", "deployable units"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-034",
+      "category": "services_types",
+      "question": "Does NodePort service automatically create a ClusterIP service?",
+      "expected_keywords": ["automatically created", "yes", "ClusterIP"],
+      "expected_sources_contain": ["services", "nodeport"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-035",
+      "category": "services_types",
+      "question": "Does LoadBalancer service automatically create NodePort and ClusterIP services?",
+      "expected_keywords": ["automatically created", "yes", "NodePort", "ClusterIP"],
+      "expected_sources_contain": ["services", "loadbalancer"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-036",
+      "category": "deployments_use_cases",
+      "question": "Can you pause a Deployment?",
+      "expected_keywords": ["pause", "yes", "apply multiple fixes"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-037",
+      "category": "pods_lifecycle",
+      "question": "If a Pod is Running, are all its containers necessarily running?",
+      "expected_keywords": ["at least one", "no", "starting or restarting"],
+      "expected_sources_contain": ["pods", "running"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "k8s-038",
+      "category": "pods_basics",
+      "question": "What kind of resources do containers in a Pod share?",
+      "expected_keywords": ["storage", "network"],
+      "expected_sources_contain": ["pods"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-039",
+      "category": "services_basics",
+      "question": "Does a Service give Pods a single DNS name?",
+      "expected_keywords": ["single DNS name", "yes"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-040",
+      "category": "deployments_basics",
+      "question": "What does a Deployment describe?",
+      "expected_keywords": ["desired state", "Pods"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-041",
+      "category": "pods_lifecycle",
+      "question": "List all five Pod phases",
+      "expected_keywords": ["Pending", "Running", "Succeeded", "Failed", "Unknown"],
+      "expected_sources_contain": ["pods", "phase"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-042",
+      "category": "services_types",
+      "question": "List all four Kubernetes ServiceTypes",
+      "expected_keywords": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+      "expected_sources_contain": ["services"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-043",
+      "category": "deployments_use_cases",
+      "question": "Why would you rollback a Deployment?",
+      "expected_keywords": ["current state", "not stable"],
+      "expected_sources_contain": ["deployments", "rollback"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-044",
+      "category": "pods_templates",
+      "question": "Where are Pod templates included?",
+      "expected_keywords": ["workload resources", "inside the workload object"],
+      "expected_sources_contain": ["pods", "template"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-045",
+      "category": "services_discovery",
+      "question": "How many primary modes of Service discovery does Kubernetes support?",
+      "expected_keywords": ["2", "two"],
+      "expected_sources_contain": ["services", "discovery"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-046",
+      "category": "deployments_updates",
+      "question": "What field must change to trigger a Deployment rollout?",
+      "expected_keywords": [".spec.template", "Pod template"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-047",
+      "category": "pods_lifecycle",
+      "question": "When a Pod is in Pending phase, has it been accepted by the cluster?",
+      "expected_keywords": ["accepted", "yes", "has been"],
+      "expected_sources_contain": ["pods", "pending"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-048",
+      "category": "services_types",
+      "question": "Which service type exposes the service on each Node's IP?",
+      "expected_keywords": ["NodePort"],
+      "expected_sources_contain": ["services", "nodeport"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-049",
+      "category": "services_types",
+      "question": "Which service type requires a cloud provider?",
+      "expected_keywords": ["LoadBalancer"],
+      "expected_sources_contain": ["services", "loadbalancer"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-050",
+      "category": "deployments_use_cases",
+      "question": "Can Deployments be used to scale applications?",
+      "expected_keywords": ["scale up", "yes", "facilitate more load"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "k8s-051",
+      "category": "pods_lifecycle",
+      "question": "In which phase must at least one container still be running?",
+      "expected_keywords": ["Running"],
+      "expected_sources_contain": ["pods", "running"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "k8s-052",
+      "category": "deployments_creation",
+      "question": "Which approach is recommended for creating Deployments in production?",
+      "expected_keywords": ["manifest", "YAML", "recommended"],
+      "expected_sources_contain": ["deployments"],
+      "difficulty": "medium"
+    }
+  ]
+}

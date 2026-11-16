@@ -17,6 +17,8 @@ services:
     environment:
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       SANDBOX_BASE_URL: http://sandbox-service:8001
+      DOCS_SERVICE_URL: http://docs-service:8002
+      WEBGUIDE_SERVICE_URL: http://webguide-service:8003
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -32,6 +34,8 @@ services:
 
     depends_on:
       - sandbox-service
+      - docs-service
+      - webguide-service
 
     restart: unless-stopped
 
@@ -57,6 +61,115 @@ services:
       - "8001"
 
     restart: unless-stopped
+
+  docs-service:
+    build:
+      context: ../..
+      dockerfile: services/docs_service/Dockerfile
+
+    container_name: sourcely-docs
+
+    ports:
+      - "8002:8002"
+
+    env_file:
+      - ../../.env
+
+    volumes:
+      - ../../services/docs_service/app:/app/app
+      - ../../services/docs_service/data:/app/data
+
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8002
+      --reload
+
+    restart: unless-stopped
+
+  scanner-service:
+    build:
+      context: ../..
+      dockerfile: services/scanner_service/Dockerfile
+
+    container_name: sourcely-scanner
+
+    ports:
+      - "8004:8004"
+
+    env_file:
+      - ../../.env
+
+    environment:
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      - ../../services/scanner_service/app:/app/app
+
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8004
+      --reload
+
+    restart: unless-stopped
+
+  webguide-service:
+    build:
+      context: ../../services/webguide_service
+      dockerfile: Dockerfile
+
+    container_name: sourcely-webguide
+
+    ports:
+      - "8003:8003"
+
+    env_file:
+      - ../../.env
+
+    volumes:
+      - ../../services/webguide_service/app:/app/app
+
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8003
+      --reload
+
+    restart: unless-stopped
+
+    depends_on:
+      - searxng
+
+  ui-service:
+    build:
+      context: ../../services/ui_service
+      dockerfile: Dockerfile
+
+    container_name: sourcely-ui
+
+    ports:
+      - "8501:8501"
+
+    environment:
+      AGENT_SERVICE_URL: http://agent-service:8000
+      DOCS_SERVICE_URL: http://docs-service:8002
+      SCANNER_SERVICE_URL: http://scanner-service:8004
+
+    volumes:
+      - ../../services/ui_service/app.py:/app/app.py
+      - ../../services/ui_service/components:/app/components
+      - ../../services/ui_service/utils:/app/utils
+
+    restart: unless-stopped
+
+    depends_on:
+      - agent-service
+      - scanner-service
+      - docs-service
 
   searxng:
     image: searxng/searxng:latest

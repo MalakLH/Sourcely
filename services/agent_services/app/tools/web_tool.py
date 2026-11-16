@@ -1,142 +1,157 @@
 import asyncio
-from typing import Any
+import logging
+from typing import Optional
 
-from webguide_service.app.search.filtering import filter_results
-from webguide_service.app.search.github import GitHubSearchClient
-from webguide_service.app.search.ranking import rank_results
-from webguide_service.app.search.searxng import SearXNGClient
-from webguide_service.app.search.summarizer import OllamaSummarizer
-from webguide_service.app.search.url_validator import URLValidator
+import httpx
 
 from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
+logger = logging.getLogger(__name__)
 
-async def run_web_tool(request: ToolRequest) -> ToolResult:
+WEBGUIDE_SERVICE_URL = "http://localhost:8003"
+
+
+async def search_web_guide(
+    query: str,
+    max_results: int = 10,
+) -> Optional[dict]:
     """
-    Search the web and GitHub, rank and validate results,
-    then generate grounded explanations.
+    Call the webguide-service /search endpoint asynchronously.
+
+    Args:
+        query: Search query
+        max_results: Number of results to retrieve
+
+    Returns:
+        Response dict from webguide-service or None on error
     """
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                f"{WEBGUIDE_SERVICE_URL}/search",
+                json={
+                    "query": query,
+                    "max_results": max_results,
+                    "sources": ["searxng", "github"],
+                    "include_github": True,
+                },
+            )
+            response.raise_for_status()
+            return response.json()
 
-    query = request.query.strip()
+    except httpx.HTTPError as e:
+        logger.error(f"Error calling webguide-service: {e}")
+        return None
 
-    if not query:
-        return ToolResult(
-            status=ToolStatus.ERROR,
-            tool=ToolName.WEB,
-            content="The search query cannot be empty.",
-            error="Empty search query.",
-        )
 
-    # Initialize existing Web Guide components.
-    searxng = SearXNGClient(timeout=20.0)
-    github = GitHubSearchClient(timeout=20.0)
-    validator = URLValidator(timeout=10.0)
-    summarizer = OllamaSummarizer(timeout=120.0)
+def format_web_results(webguide_response: dict) -> tuple[str, list[str]]:
+    """
+    Format web guide results into a readable response with sources.
 
-    # Search both sources concurrently.
-    search_results = await asyncio.gather(
-        searxng.search(query, max_results=10),
-        github.search(query, max_results=10),
-        return_exceptions=True,
-    )
+    Args:
+        webguide_response: Response from webguide-service /search endpoint
 
-    results = []
-    errors = []
+    Returns:
+        Tuple of (formatted_content, sources_list)
+    """
+    if not webguide_response or not webguide_response.get("results"):
+        return "No web results found for your query.", []
 
-    for result in search_results:
-        if isinstance(result, BaseException):
-            errors.append(str(result))
+    results = webguide_response["results"]
+    sources_used = webguide_response.get("sources_used", [])
+
+    # Build formatted response
+    answer_parts = [
+        f"Found {len(results)} relevant web resources (sources: {', '.join(sources_used)}):\n"
+    ]
+
+    sources = []
+
+    for idx, result in enumerate(results, 1):
+        title = result.get("title", "Untitled")
+        url = result.get("url", "")
+        snippet = result.get("snippet", "")
+        source = result.get("source", "unknown")
+        ranking_score = result.get("ranking_score", 0.0)
+
+        # Format result
+        result_text = f"\n**[{idx}] {title}**"
+
+        # Add source indicator
+        if source == "github":
+            stars = result.get("stars")
+            language = result.get("language")
+            result_text += " 🔗 GitHub"
+            if language:
+                result_text += f" ({language})"
+            if stars:
+                result_text += f" ⭐ {stars:,}"
         else:
-            results.extend(result)
+            result_text += f" 🌐 Web"
 
-    if not results:
+        result_text += f" [score: {ranking_score:.3f}]\n"
+
+        # Add snippet if available
+        if snippet:
+            snippet_preview = snippet[:250] + "..." if len(snippet) > 250 else snippet
+            result_text += f"{snippet_preview}\n"
+
+        result_text += f"Link: {url}\n"
+
+        answer_parts.append(result_text)
+        sources.append(url)
+
+    return "\n".join(answer_parts), sources
+
+
+def run_web_tool(request: ToolRequest) -> ToolResult:
+    """
+    Execute web search using the webguide-service.
+
+    This tool:
+    1. Calls the webguide-service /search endpoint
+    2. Searches SearXNG and GitHub using Malak's implementations
+    3. Applies intelligent ranking and filtering
+    4. Returns formatted results with source URLs
+
+    Args:
+        request: ToolRequest with query
+
+    Returns:
+        ToolResult with web search results or error message
+    """
+    try:
+        # Call webguide-service asynchronously
+        webguide_response = asyncio.run(
+            search_web_guide(
+                query=request.query,
+                max_results=10,
+            )
+        )
+
+        if not webguide_response:
+            return ToolResult(
+                status=ToolStatus.ERROR,
+                tool=ToolName.WEB,
+                content="Failed to connect to web guide service. Please ensure webguide-service is running.",
+                sources=[],
+            )
+
+        # Format the response
+        content, sources = format_web_results(webguide_response)
+
+        return ToolResult(
+            status=ToolStatus.SUCCESS,
+            tool=ToolName.WEB,
+            content=content,
+            sources=sources,
+        )
+
+    except Exception as e:
+        logger.error(f"Error in web_tool: {e}")
         return ToolResult(
             status=ToolStatus.ERROR,
             tool=ToolName.WEB,
-            content="No web results could be retrieved.",
-            error="; ".join(errors) or "No results found.",
+            content=f"Web search error: {str(e)}",
+            sources=[],
         )
-
-    # Rank and deduplicate the combined results.
-    ranked_results = rank_results(results)
-
-    filtered_results = filter_results(
-        ranked_results,
-        max_results=5,
-    )
-
-    # Validate URLs concurrently.
-    validation_results = await asyncio.gather(
-        *[validator.validate(str(result.url)) for result in filtered_results],
-        return_exceptions=True,
-    )
-
-    valid_results = []
-
-    for result, validation in zip(
-        filtered_results,
-        validation_results,
-        strict=False,
-    ):
-        if isinstance(validation, BaseException):
-            continue
-
-        if validation.is_valid:
-            valid_results.append(result)
-
-    if not valid_results:
-        return ToolResult(
-            status=ToolStatus.ERROR,
-            tool=ToolName.WEB,
-            content="Search results were found, but none passed URL validation.",
-            error="No valid URLs available.",
-        )
-
-    # Generate explanations for validated results.
-    summaries = await asyncio.gather(
-        *[summarizer.summarize(query, result) for result in valid_results],
-        return_exceptions=True,
-    )
-
-    sources: list[dict[str, Any]] = []
-    response_lines = ["Here are the most relevant web resources:\n"]
-
-    for result, summary in zip(valid_results, summaries, strict=False):
-        if isinstance(summary, BaseException):
-            explanation = result.snippet[:300] if result.snippet else "No explanation available."
-
-        else:
-            explanation = summary
-
-        sources.append(
-            {
-                "title": result.title,
-                "url": str(result.url),
-                "source": result.source,
-                "snippet": result.snippet,
-                "explanation": explanation,
-                "ranking_score": result.ranking_score,
-                "stars": result.stars,
-                "language": result.language,
-            }
-        )
-
-        response_lines.append(
-            f"- **{result.title}**\n  URL: {result.url}\n  Why relevant: {explanation}"
-        )
-
-    if errors:
-        response_lines.append("\nNote: Some search providers were unavailable.")
-
-    return ToolResult(
-        status=ToolStatus.SUCCESS,
-        tool=ToolName.WEB,
-        content="\n\n".join(response_lines),
-        sources=sources,
-        metadata={
-            "query": query,
-            "results_found": len(results),
-            "results_after_filtering": len(filtered_results),
-            "validated_results": len(valid_results),
-        },
-    )
