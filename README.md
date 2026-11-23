@@ -321,19 +321,3 @@ mypy app/
 ## 📝 License
 
 MIT License - See LICENSE file for details
-
----
-
-## 🙏 Acknowledgments
-
-Built with:
-- **LangGraph** for agent orchestration
-- **Ollama** for local LLM inference
-- **LanceDB** for vector storage
-- **SearXNG** for privacy-respecting search
-- **Bandit & Semgrep** for security analysis
-- **Docker** for isolation and deployment
-
----
-
-**Status**: ✅ Production Ready | 7 Services | Deep-Navy UI Theme | Comprehensive Security
