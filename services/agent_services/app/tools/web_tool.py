@@ -8,7 +8,7 @@ from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 logger = logging.getLogger(__name__)
 
-WEBGUIDE_SERVICE_URL = "http://localhost:8003"
+WEBGUIDE_SERVICE_URL = "http://sourcely-webguide:8003"
 
 
 async def search_web_guide(
@@ -26,7 +26,7 @@ async def search_web_guide(
         Response dict from webguide-service or None on error
     """
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 f"{WEBGUIDE_SERVICE_URL}/search",
                 json={
@@ -104,7 +104,7 @@ def format_web_results(webguide_response: dict) -> tuple[str, list[str]]:
     return "\n".join(answer_parts), sources
 
 
-def run_web_tool(request: ToolRequest) -> ToolResult:
+async def run_web_tool(request: ToolRequest) -> ToolResult:
     """
     Execute web search using the webguide-service.
 
@@ -122,11 +122,9 @@ def run_web_tool(request: ToolRequest) -> ToolResult:
     """
     try:
         # Call webguide-service asynchronously
-        webguide_response = asyncio.run(
-            search_web_guide(
-                query=request.query,
-                max_results=10,
-            )
+        webguide_response = await search_web_guide(
+            query=request.query,
+            max_results=10,
         )
 
         if not webguide_response:
@@ -140,11 +138,14 @@ def run_web_tool(request: ToolRequest) -> ToolResult:
         # Format the response
         content, sources = format_web_results(webguide_response)
 
+        # Format sources as list of dicts for ToolResult schema
+        formatted_sources = [{"url": url, "title": url} for url in sources if url]
+        
         return ToolResult(
             status=ToolStatus.SUCCESS,
             tool=ToolName.WEB,
             content=content,
-            sources=sources,
+            sources=formatted_sources,
         )
 
     except Exception as e:

@@ -16,6 +16,8 @@ dependencies = [
     "httpx",
     "bandit",
     "semgrep",
+    "langchain-ollama",
+    "langchain-core",
 ]
 
 [project.optional-dependencies]

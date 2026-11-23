@@ -7,15 +7,12 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY pyproject.toml .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir fastapi uvicorn httpx pydantic
+# Install Python dependencies first (for better caching)
+RUN pip install --no-cache-dir fastapi uvicorn[standard] httpx pydantic
 
 # Copy application code
 COPY app ./app
 
 EXPOSE 8003
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]

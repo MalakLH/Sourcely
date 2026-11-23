@@ -41,6 +41,8 @@ async def execute_code(request: ExecutionRequest):
         return await run_in_threadpool(executor.execute, request)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Execution failed: {str(exc)}") from exc
 
 
 @router.get("/health")

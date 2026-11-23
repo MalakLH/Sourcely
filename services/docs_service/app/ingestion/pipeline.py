@@ -136,9 +136,11 @@ class DocumentIngestionPipeline:
 
         for file_path in files:
             try:
-                # Generate source URL from file path
+                # Generate source URL from file path using real URL mappings
+                from app.ingestion.url_mappings import get_real_url
+                
                 relative_path = file_path.relative_to(directory_path)
-                source_url = f"{base_url.rstrip('/')}/{relative_path.as_posix()}"
+                source_url = get_real_url(str(relative_path))
 
                 # Ingest file
                 chunks = self.ingest_file(file_path, source_url, doc_version)

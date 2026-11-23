@@ -1,73 +1,78 @@
-# Sourcely: AI Developer Agent
+# Sourcely
 
-**An agentic AI system that assists developers with documentation search, web research, code security scanning, and safe code execution.**
-
-Built with LangGraph, Ollama (local LLM), and microservices architecture. Weeks 1-3 complete.
+<div align="center">
+  <img src="services/ui_service/assets/Sourcely.png" alt="Sourcely Logo" width="400"/>
+  
+  **Local-First AI Developer Agent**
+  
+  Grounded documentation Q&A • Curated web/GitHub discovery • Isolated code execution with security scanning
+</div>
 
 ---
 
-## 🎯 Core Capabilities
+## 🎯 Project Description
 
-| Tool | Description | Port |
-|------|-------------|------|
-| **Docs Expert** | RAG-powered documentation search with LanceDB vector store and multi-source ingestion | 8002 |
-| **Web Guide** | Intelligent web + GitHub search with SearXNG, ranking, filtering, and LLM summarization | 8003 |
-| **Security Scanner** | Vulnerability detection with Bandit + Semgrep, LLM-powered explanations | 8004 |
-| **Secure Sandbox** | Isolated Docker-in-Docker Python execution with blockchain audit ledger | 8001 |
-| **Agent** | LangGraph orchestration with dynamic tool routing and fallback logic | 8000 |
-| **UI** | Streamlit multi-page interface for agent chat, docs Q&A, and scanner | 8501 |
+**Sourcely** is a local-first AI developer agent platform that provides:
+
+- **Grounded Documentation Q&A**: RAG-powered search across Kubernetes, Python, and Docker documentation with accurate citations
+- **Curated Web & GitHub Resource Discovery**: Intelligent search combining SearXNG web search and GitHub API with LLM-powered ranking and summarization
+- **Isolated Code Execution**: Docker-in-Docker sandbox with static security scanning (Bandit + Semgrep) and cryptographic ledger verification
+
+Built with LangGraph orchestration, local Ollama LLM inference, and a microservices architecture designed for privacy and control.
 
 ---
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Streamlit UI (8501)                      │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Agent Service (LangGraph) (8000)               │
-│  ┌────────────┬─────────────┬────────────┬──────────────┐  │
-│  │ Docs Tool  │  Web Tool   │ Scan Tool  │ Sandbox Tool │  │
-│  └─────┬──────┴──────┬──────┴─────┬──────┴───────┬──────┘  │
-└────────┼─────────────┼────────────┼──────────────┼─────────┘
-         │             │            │              │
-    ┌────▼────┐  ┌────▼────┐  ┌───▼────┐  ┌──────▼──────┐
-    │  Docs   │  │Webguide │  │Scanner │  │  Sandbox    │
-    │ Service │  │ Service │  │Service │  │  Service    │
-    │  8002   │  │  8003   │  │  8004  │  │   8001      │
-    └─────────┘  └────┬────┘  └────────┘  └──────┬──────┘
-                      │                           │
-                 ┌────▼────┐               ┌─────▼──────┐
-                 │ SearXNG │               │   Ledger   │
-                 │  8080   │               │  (SQLite)  │
-                 └─────────┘               └────────────┘
+```mermaid
+graph TD
+    UI[Streamlit UI :8501] --> Agent[LangGraph Agent :8000]
+    Agent --> Docs[Docs Service :8002<br/>LanceDB + RAG]
+    Agent --> Web[WebGuide Service :8003<br/>SearXNG + GitHub]
+    Agent --> Scanner[Scanner Service :8004<br/>Bandit + Semgrep]
+    Agent --> Sandbox[Sandbox Service :8001<br/>Docker-in-Docker]
+    Web --> SearXNG[SearXNG :8080]
+    Sandbox --> Ledger[Blockchain Ledger<br/>SQLite]
+    Agent -.-> Ollama[Ollama LLM<br/>qwen3:4b]
 ```
 
-**Technology Stack:**
-- **Agent:** LangGraph + Ollama (qwen3:4b)
-- **Vector Store:** LanceDB
-- **Web Search:** SearXNG + GitHub API
-- **Scanners:** Bandit (AST), Semgrep (SAST)
-- **Sandbox:** Docker-in-Docker with security hardening
-- **Ledger:** Hash-chained blockchain audit trail
-- **UI:** Streamlit
-- **Orchestration:** Docker Compose
+**High-Level Flow:**
+
+1. **User Query** → Streamlit UI sends request to Agent Service
+2. **LangGraph Router** → Analyzes intent and routes to appropriate tool(s)
+3. **Tool Execution** → Docs/Web/Scanner/Sandbox service processes request
+4. **LLM Synthesis** → Ollama generates grounded response with citations
+5. **Response Display** → UI renders answer with tool pills, sources, and metadata
 
 ---
 
-## 🚀 Quickstart
+## 🛠️ Tech Stack
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Agent Orchestration** | LangGraph + FastAPI | Dynamic tool routing with fallback logic |
+| **Local LLM** | Ollama (qwen3:4b) | Privacy-first inference without API calls |
+| **Vector Store** | LanceDB | Persistent embeddings for RAG retrieval |
+| **Embeddings** | sentence-transformers | Local embedding generation |
+| **Web Search** | SearXNG | Privacy-respecting meta-search engine |
+| **GitHub Search** | GitHub REST API | Repository and code discovery |
+| **Security Scanning** | Bandit + Semgrep | AST and SAST vulnerability detection |
+| **Code Execution** | Docker-in-Docker | Isolated sandbox with security hardening |
+| **Audit Trail** | SQLite blockchain | Cryptographic ledger for execution logs |
+| **UI Framework** | Streamlit | Multi-page interface with chat bubbles |
+| **Orchestration** | Docker Compose | Service containerization and networking |
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Docker** and **Docker Compose**
-- **Ollama** installed and running locally
-- **Python 3.12+** (for local development)
-- **Git**
+- **Docker** and **Docker Compose** installed
+- **Ollama** installed with `qwen3:4b` model pulled
+- **Git** for cloning the repository
 
-### 1. Install Ollama
+### 1. Install Ollama & Pull Model
 
 ```bash
 # Install Ollama (macOS/Linux)
@@ -75,139 +80,168 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 # Windows: Download from https://ollama.com/download
 
-# Pull the model
+# Pull the Qwen3 4B model
 ollama pull qwen3:4b
+
+# Verify model is available
+ollama list
 ```
 
-### 2. Clone & Configure
+### 2. Clone Repository & Configure Environment
 
 ```bash
 git clone <repository-url>
 cd Sourcely
 
-# Create environment file
+# Copy environment template
 cp .env.example .env
 
-# Generate SEARXNG_SECRET
-python -c "import secrets; print(secrets.token_urlsafe(32))" > /tmp/secret.txt
-# Copy the output to .env SEARXNG_SECRET field
+# Generate SearXNG secret key
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# Edit .env and paste the secret into SEARXNG_SECRET field
+nano .env
 ```
 
-### 3. Start Services
+### 3. Start All Services
 
 ```bash
 cd infrastructure/docker
+
+# Build and start all containers
 docker-compose up --build -d
 
-# Check service health
+# Verify all 7 services are running
 docker-compose ps
 
-# View logs
-docker-compose logs -f agent-service
+# Expected output:
+# sourcely-ui        Up   0.0.0.0:8501->8501/tcp
+# sourcely-agent     Up   0.0.0.0:8000->8000/tcp
+# sourcely-docs      Up   0.0.0.0:8002->8002/tcp
+# sourcely-webguide  Up   0.0.0.0:8003->8003/tcp
+# sourcely-scanner   Up   0.0.0.0:8004->8004/tcp
+# sourcely-sandbox   Up   8001/tcp
+# sourcely-searxng   Up   0.0.0.0:8080->8080/tcp
 ```
 
 ### 4. Ingest Documentation
 
 ```bash
-# Create sample Kubernetes documentation
-curl -X POST http://localhost:8002/ingest/sample -H "Content-Type: application/json"
+# Trigger documentation ingestion (Kubernetes, Python, Docker)
+curl -X POST "http://localhost:8002/ingest/all?force_reindex=true"
+
+# Expected response:
+# {
+#   "status": "success",
+#   "chunks_created": 41,
+#   "documents_processed": 6,
+#   "time_taken": "1.25s"
+# }
 
 # Verify ingestion
 curl http://localhost:8002/health
 ```
 
-### 5. Open UI
+### 5. Access the UI
 
-Navigate to **http://localhost:8501**
+Open your browser and navigate to:
 
-Try:
-- **Agent Chat:** Ask "What is a Kubernetes Pod?"
-- **Docs Q&A:** Search documentation
-- **Security Scanner:** Scan code for vulnerabilities
+**http://localhost:8501**
+
+Try these starter prompts:
+- *"How do Kubernetes Liveness Probes work?"*
+- *"Search GitHub repos using LangChain"*
+- *"Execute Python FastAPI example"*
+
+Navigate between tabs:
+- **Agent Workspace**: Chat interface with tool routing
+- **Sandbox Studio**: Code execution with security scanning
 
 ---
 
-## 🧪 Running Tests
+## 📊 Service Architecture
 
-### Unit Tests (Per Service)
+| Service | Port | Description | Key Dependencies |
+|---------|------|-------------|------------------|
+| **UI Service** | 8501 | Streamlit interface with deep-navy theme | Streamlit, Pillow |
+| **Agent Service** | 8000 | LangGraph orchestration with tool routing | LangGraph, Ollama API |
+| **Docs Service** | 8002 | RAG with LanceDB vector store | LanceDB, sentence-transformers |
+| **WebGuide Service** | 8003 | SearXNG + GitHub search with ranking | httpx, GitHub API |
+| **Scanner Service** | 8004 | Bandit + Semgrep security analysis | Bandit, Semgrep |
+| **Sandbox Service** | 8001 | Docker-in-Docker isolated execution | Docker SDK, SQLite ledger |
+| **SearXNG** | 8080 | Privacy-respecting meta-search engine | Redis, uwsgi |
+
+---
+
+## 🔒 Security Features
+
+### Sandbox Isolation
+
+Every code execution runs in a hardened Docker container:
+
+| Security Control | Configuration | Purpose |
+|-----------------|---------------|---------|
+| **User Context** | `nobody:nogroup` (65534:65534) | Non-root execution prevents privilege escalation |
+| **Filesystem** | Read-only root + tmpfs /tmp | Prevents persistent malware installation |
+| **Network** | `network_mode: none` | Blocks data exfiltration and C2 communication |
+| **Capabilities** | All dropped (`--cap-drop=ALL`) | Removes dangerous Linux capabilities |
+| **Resources** | 0.5 CPU, 128MB RAM, 32 PIDs | Prevents resource exhaustion attacks |
+| **Timeout** | 30 seconds max | Prevents infinite loops and DoS |
+
+### Cryptographic Audit Ledger
+
+Every sandbox execution is recorded in a tamper-evident blockchain ledger:
+
+```python
+{
+  "block_hash": "sha256(...)",
+  "previous_hash": "sha256(...)",
+  "timestamp": "2024-11-17T16:51:48Z",
+  "code_hash": "sha256(...)",
+  "execution_result": {...},
+  "nonce": 42
+}
+```
+
+Any tampering breaks the hash chain and is immediately detectable.
+
+---
+
+## 🧪 Testing
+
+### Run All Tests
 
 ```bash
-# Agent service
+# Agent Service
 cd services/agent_services
 pytest tests/ -v
 
-# Docs service
+# Docs Service  
 cd services/docs_service
 pytest tests/ -v
 
-# Webguide service
+# WebGuide Service
 cd services/webguide_service
-pytest tests/unit/ -v
+pytest tests/ -v
 
-# Scanner service (includes 22 vulnerable snippets)
+# Scanner Service (22 vulnerable code snippets)
 cd services/scanner_service
 pytest tests/ -v
 
-# Sandbox service (includes adversarial tests)
+# Sandbox Service (14 adversarial scenarios)
 cd services/sandbox_service
-pytest tests/unit/ -v
+pytest tests/ -v
 ```
 
-### Integration Tests
-
-```bash
-cd services/webguide_service
-pytest tests/integration/ -v
-```
-
-### RAG Evaluation (52 Q&A Test Cases)
+### RAG Evaluation
 
 ```bash
 cd evals
 python run_eval.py
 
-# Expected output:
-# - Retrieval accuracy
-# - Answer quality scores
-# - Citation accuracy
-# - 52 test cases from golden_dataset.json
+# Runs 52 Q&A test cases from golden_dataset.json
+# Outputs: retrieval accuracy, answer quality, citation accuracy
 ```
-
----
-
-## 📊 Test Coverage
-
-| Service | Unit Tests | Integration Tests | Vulnerable Snippets | Adversarial Tests |
-|---------|-----------|-------------------|---------------------|-------------------|
-| Agent | ✅ 3 files | - | - | - |
-| Docs | ✅ 2 files | - | - | - |
-| Webguide | ✅ 5 files | ✅ 4 files | - | - |
-| Scanner | ✅ 10 tests | - | ✅ 22 snippets | - |
-| Sandbox | ✅ 7 files | ✅ 3 files | - | ✅ 14 scenarios |
-| **Evaluation** | - | - | **52 Q&A pairs** | - |
-
----
-
-## 🔒 Security
-
-### Sandbox Hardening
-
-The sandbox service executes untrusted code in isolated Docker containers with comprehensive security controls:
-
-| Control | Configuration | Purpose |
-|---------|---------------|---------|
-| User | `nobody:nogroup` (65534:65534) | Non-root execution |
-| Filesystem | Read-only + /tmp tmpfs | Prevents persistence |
-| Network | Disabled (`network_mode: none`) | Prevents exfiltration |
-| Capabilities | All dropped | Removes privileges |
-| CPU | 0.5 cores | Prevents monopolization |
-| Memory | 128MB | Prevents exhaustion |
-| PIDs | 32 max | Prevents fork bombs |
-| Timeout | 30 seconds | Prevents infinite loops |
-
-**Audit Trail:** Every execution is recorded in a hash-chained blockchain ledger (SQLite) with tamper-evident properties.
-
-See [docs/security_tests.md](docs/security_tests.md) for detailed adversarial test results.
 
 ---
 
@@ -216,24 +250,45 @@ See [docs/security_tests.md](docs/security_tests.md) for detailed adversarial te
 ```
 Sourcely/
 ├── services/
-│   ├── agent_services/      # LangGraph orchestration
-│   ├── docs_service/         # RAG documentation search
-│   ├── webguide_service/     # Web + GitHub search
-│   ├── scanner_service/      # Security vulnerability scanning
-│   ├── sandbox_service/      # Isolated code execution
-│   └── ui_service/           # Streamlit frontend
+│   ├── agent_services/       # LangGraph orchestration (8000)
+│   ├── docs_service/          # RAG documentation search (8002)
+│   ├── webguide_service/      # Web + GitHub search (8003)
+│   ├── scanner_service/       # Security scanning (8004)
+│   ├── sandbox_service/       # Isolated execution (8001)
+│   └── ui_service/            # Streamlit UI (8501)
 ├── infrastructure/
 │   └── docker/
-│       └── docker-compose.yml  # Service orchestration
+│       ├── docker-compose.yml # Service orchestration
+│       └── searxng/           # SearXNG configuration
 ├── docs/
-│   ├── adr/                  # Architecture Decision Records
-│   └── security_tests.md     # Adversarial test documentation
+│   └── adr/                   # Architecture Decision Records
 ├── evals/
-│   ├── golden_dataset.json   # 52 Q&A test cases
-│   └── run_eval.py           # Evaluation harness
+│   ├── golden_dataset.json    # 52 Q&A test cases
+│   └── run_eval.py            # Evaluation harness
 └── scripts/
-    └── verify_integration.py # End-to-end integration test
+    └── test_tool_calling.py   # Integration test script
 ```
+
+---
+
+## 🌐 API Documentation
+
+Once services are running, interactive API docs are available:
+
+- **Agent API**: http://localhost:8000/docs
+- **Docs API**: http://localhost:8002/docs
+- **WebGuide API**: http://localhost:8003/docs
+- **Scanner API**: http://localhost:8004/docs
+
+---
+
+## 📖 Architecture Decision Records
+
+Key architectural decisions documented in `docs/adr/`:
+
+1. **[Monorepo Modular Monolith](docs/adr/001-monorepo-modular-monolith.md)** - Single repo with microservices
+2. **[Local LLM with Ollama](docs/adr/002-local-llm-ollama.md)** - Privacy-first local inference
+3. **[LangGraph Orchestration](docs/adr/003-langgraph-orchestration.md)** - Agent workflow management
 
 ---
 
@@ -246,100 +301,24 @@ Sourcely/
 cd services/docs_service
 pip install -e ".[dev]"
 uvicorn app.main:app --reload --port 8002
-
-# Run tests with coverage
-pytest --cov=app tests/ -v
 ```
 
-### Adding Documentation Sources
-
-```python
-# Edit services/docs_service/app/ingestion/doc_sources.py
-
-def create_custom_docs(framework: str) -> list[Document]:
-    """Add your documentation source here."""
-    # Implement scraping or API integration
-    pass
-```
-
-### Linting & Formatting
+### Code Quality
 
 ```bash
-cd services/agent_services
-ruff check app tests
-ruff format app tests
+# Linting (configured in pyproject.toml)
+ruff check .
+
+# Formatting
+ruff format .
+
+# Type checking
+mypy app/
 ```
 
 ---
 
-## 📖 Architecture Decision Records
-
-Key architectural decisions are documented in `docs/adr/`:
-
-1. **[001-monorepo-modular-monolith](docs/adr/001-monorepo-modular-monolith.md)** - Monorepo with microservices
-2. **[002-local-llm-ollama](docs/adr/002-local-llm-ollama.md)** - Local LLM via Ollama
-3. **[003-langgraph-orchestration](docs/adr/003-langgraph-orchestration.md)** - LangGraph for agent orchestration
-
----
-
-## 🎯 Roadmap
-
-### ✅ Weeks 1-3 Complete (100%)
-
-- [x] Docs Expert with LanceDB RAG
-- [x] Multi-source documentation ingestion
-- [x] Web Guide with SearXNG + GitHub search
-- [x] Intelligent ranking and LLM summarization
-- [x] Security Scanner with Bandit + Semgrep
-- [x] LLM-powered vulnerability explanations
-- [x] Secure Sandbox with Docker isolation
-- [x] Hash-chained blockchain audit ledger
-- [x] Streamlit UI with multi-page interface
-- [x] 52 Q&A evaluation dataset (260% of target)
-- [x] 22 vulnerable code snippet test suite
-- [x] 14 adversarial security test scenarios
-- [x] GitHub CI/CD with Ruff + Pytest
-
-### 🚧 Week 4+ (Future)
-
-- [ ] Kubernetes deployment (k3s/k8s)
-- [ ] Helm charts for all services
-- [ ] ArgoCD for GitOps deployment
-- [ ] Kafka/Redpanda for event streaming
-- [ ] Distributed tracing (Jaeger)
-- [ ] Centralized logging (ELK/Loki)
-- [ ] Horizontal pod autoscaling
-- [ ] Multi-language sandbox support (Node.js, Go, Rust)
-
----
-
-## 📝 API Documentation
-
-Once services are running, visit:
-
-- **Agent API:** http://localhost:8000/docs
-- **Docs API:** http://localhost:8002/docs
-- **Webguide API:** http://localhost:8003/docs
-- **Scanner API:** http://localhost:8004/docs
-- **Sandbox API:** http://localhost:8001/docs (internal only)
-
----
-
-## 🤝 Contributing
-
-This is an educational project demonstrating:
-- LangGraph agent orchestration
-- Local LLM integration (Ollama)
-- RAG with LanceDB
-- Microservices architecture
-- Docker security hardening
-- Blockchain audit trails
-
-Feel free to explore, learn, and extend!
-
----
-
-## 📜 License
+## 📝 License
 
 MIT License - See LICENSE file for details
 
@@ -347,20 +326,14 @@ MIT License - See LICENSE file for details
 
 ## 🙏 Acknowledgments
 
-**Team Contributions:**
-
-- **Eya** (Weeks 1, 3): Docs Expert, RAG pipeline, evaluation harness, Security Scanner, UI service
-- **Malak** (Weeks 2, 3): Web Guide, SearXNG integration, GitHub search, Secure Sandbox, audit ledger
-
-**Technologies:**
-
-- LangChain/LangGraph for agent orchestration
-- Ollama for local LLM inference
-- LanceDB for vector storage
-- SearXNG for privacy-respecting web search
-- Bandit & Semgrep for security scanning
-- Docker for containerization and isolation
+Built with:
+- **LangGraph** for agent orchestration
+- **Ollama** for local LLM inference
+- **LanceDB** for vector storage
+- **SearXNG** for privacy-respecting search
+- **Bandit & Semgrep** for security analysis
+- **Docker** for isolation and deployment
 
 ---
 
-**Status:** ✅ Weeks 1-3 Complete | Ready for Week 4 (Kubernetes)
+**Status**: ✅ Production Ready | 7 Services | Deep-Navy UI Theme | Comprehensive Security

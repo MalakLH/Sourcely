@@ -20,6 +20,8 @@ class LLMExplainer:
             base_url=settings.ollama_base_url,
             model=settings.ollama_model,
             temperature=settings.ollama_temperature,
+            timeout=120.0,  # 120 second timeout for LLM calls
+            num_predict=512,  # Cap output tokens to 512 for faster responses
         )
 
     def explain_finding(
@@ -58,32 +60,19 @@ class LLMExplainer:
 
         context = "\n".join(context_parts)
 
-        # Create prompt for LLM
-        prompt = f"""You are a security expert helping developers understand and fix security vulnerabilities.
+        # Create concise prompt for LLM (optimized for fast response)
+        prompt = f"""Analyze this security finding and provide a brief response in JSON format:
 
-Security Finding:
 {context}
 
-Please provide:
-1. A clear explanation of what this vulnerability is and why it's a security concern
-2. Step-by-step remediation instructions with code examples if applicable
-3. An explanation of why this severity level ({finding.severity.value}) was assigned
-4. Relevant security references (CWE, OWASP, etc.)
+Provide a concise response with:
+1. What: Brief explanation (2-3 sentences)
+2. Fix: Quick remediation steps (bullet points)
+3. Why {finding.severity.value}: One sentence justification
 
-Format your response as follows:
+Keep response under 400 words. Be direct and actionable.
 
-EXPLANATION:
-[Your explanation here]
-
-REMEDIATION:
-[Your remediation steps here]
-
-SEVERITY RATIONALE:
-[Why this severity level]
-
-REFERENCES:
-[List of references]
-"""
+Response:"""
 
         try:
             # Generate explanation using LLM

@@ -10,7 +10,7 @@ from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 logger = logging.getLogger(__name__)
 
-DOCS_SERVICE_URL = "http://localhost:8001"
+DOCS_SERVICE_URL = "http://sourcely-docs:8002"
 
 
 async def retrieve_from_docs_service(
@@ -28,7 +28,7 @@ async def retrieve_from_docs_service(
         Response dict from docs-service or None on error
     """
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 f"{DOCS_SERVICE_URL}/retrieve",
                 json={
@@ -102,11 +102,12 @@ Instructions:
 Answer:"""
 
     try:
-        # Initialize Ollama LLM
+        # Initialize Ollama LLM with extended timeout
         llm = ChatOllama(
             base_url=settings.ollama_base_url,
             model=settings.ollama_model,
             temperature=settings.ollama_temperature,
+            timeout=120.0,  # 120 second timeout
         )
 
         # Generate answer
@@ -209,11 +210,14 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
         # Generate LLM-grounded answer with citations
         content, sources = generate_grounded_answer(request.query, retrieval_response)
 
+        # Format sources as list of dicts for ToolResult schema
+        formatted_sources = [{"url": url, "title": url} for url in sources if url]
+        
         return ToolResult(
             status=ToolStatus.SUCCESS,
             tool=ToolName.DOCS,
             content=content,
-            sources=sources,
+            sources=formatted_sources,
         )
 
     except Exception as e:

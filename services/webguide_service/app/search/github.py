@@ -1,5 +1,5 @@
 import httpx
-from webguide_service.app.schema.search_result import SearchResult
+from app.schema.search_result import SearchResult
 
 
 class GitHubSearchError(Exception):
@@ -39,13 +39,14 @@ class GitHubSearchClient:
                 headers={
                     "Accept": "application/vnd.github+json",
                     "X-GitHub-Api-Version": "2022-11-28",
+                    "User-Agent": "Sourcely-WebGuide/0.1.0 (Python/httpx)",  # Required by GitHub API
                 },
             ) as client:
                 response = await client.get(
                     f"{self.BASE_URL}/search/repositories",
                     params={
                         "q": query.strip(),
-                        "sort": "updated",
+                        "sort": "stars",  # Sort by stars for better results
                         "order": "desc",
                         "per_page": max_results,
                     },
@@ -57,9 +58,19 @@ class GitHubSearchClient:
         except httpx.TimeoutException as exc:
             raise GitHubSearchError("GitHub request timed out.") from exc
         except httpx.HTTPStatusError as exc:
-            raise GitHubSearchError(
-                f"GitHub returned HTTP {exc.response.status_code}."
-            ) from exc
+            # Handle rate limiting gracefully
+            if exc.response.status_code == 403:
+                raise GitHubSearchError(
+                    "GitHub API rate limit exceeded. Try again later."
+                ) from exc
+            elif exc.response.status_code == 422:
+                raise GitHubSearchError(
+                    "Invalid GitHub search query format."
+                ) from exc
+            else:
+                raise GitHubSearchError(
+                    f"GitHub returned HTTP {exc.response.status_code}."
+                ) from exc
         except httpx.RequestError as exc:
             raise GitHubSearchError("Could not connect to GitHub.") from exc
         except ValueError as exc:

@@ -19,20 +19,25 @@ class SourcelyAPIClient:
         self.docs_url = docs_url.rstrip("/")
         self.timeout = timeout
 
-    async def query_agent(self, query: str) -> dict:
+    async def query_agent(self, query: str, code: Optional[str] = None) -> dict:
         """
         Send a query to the agent service.
 
         Args:
             query: User's question or request
+            code: Optional code snippet to execute
 
         Returns:
             Response from agent with answer and metadata
         """
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        payload = {"query": query}
+        if code:
+            payload["code"] = code
+        
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 f"{self.agent_url}/api/query",
-                json={"query": query},
+                json=payload,
             )
             response.raise_for_status()
             return response.json()
@@ -126,5 +131,40 @@ class SourcelyAPIClient:
                 results["docs"] = response.status_code == 200
             except Exception:
                 results["docs"] = False
+            
+            # Webguide and Sandbox are internal, mark as unknown for now
+            results["webguide"] = False
+            results["sandbox"] = False
 
         return results
+
+    async def execute_sandbox(
+        self,
+        code: str,
+        language: str = "python",
+        timeout: int = 5,
+    ) -> dict:
+        """
+        Execute code in sandbox environment.
+
+        Args:
+            code: Code to execute
+            language: Programming language
+            timeout: Execution timeout in seconds
+
+        Returns:
+            Execution results with stdout, stderr, exit code
+        """
+        # Sandbox is internal, call via agent for now
+        # In future, could expose sandbox endpoint or use agent's sandbox tool
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                f"{self.agent_url}/api/query",
+                json={
+                    "query": f"Execute this {language} code",
+                    "code": code,
+                    "timeout": timeout,
+                },
+            )
+            response.raise_for_status()
+            return response.json()

@@ -1,5 +1,5 @@
 import httpx
-from webguide_service.app.schema.search_result import SearchResult
+from app.schema.search_result import SearchResult
 
 
 class SearXNGError(Exception):

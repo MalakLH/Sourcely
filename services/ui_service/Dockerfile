@@ -8,8 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY app.py .
-COPY components/ ./components/
-COPY utils/ ./utils/
+COPY .streamlit/ ./.streamlit/
+COPY assets/ ./assets/
 
 EXPOSE 8501
 

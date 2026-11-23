@@ -770,6 +770,534 @@ Docker automatically manages iptables rules for container networking.
     logger.info(f"Created Docker networking doc")
 
 
+def create_sample_kubernetes_probes_docs(output_dir: Path) -> None:
+    """
+    Create comprehensive Kubernetes Probes documentation.
+    
+    Args:
+        output_dir: Directory to write sample docs
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Kubernetes Liveness, Readiness, Startup Probes
+    k8s_probes = """# Kubernetes Health Probes
+
+## Overview
+
+Kubernetes provides three types of health probes to ensure your applications are running correctly and can handle traffic. These probes are essential for maintaining application availability and reliability in a containerized environment.
+
+## Liveness Probes
+
+### What is a Liveness Probe?
+
+A **liveness probe** determines if a container is running properly. If the liveness probe fails, Kubernetes kills the container and restarts it according to the pod's restart policy.
+
+### When to Use Liveness Probes
+
+- Detect deadlocked applications that are still running but unable to make progress
+- Detect applications stuck in infinite loops
+- Force restart of unhealthy containers
+- Recover from transient failures automatically
+
+### Liveness Probe Configuration
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-example
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+```
+
+### Configuration Parameters
+
+- **initialDelaySeconds**: Number of seconds after container starts before probe begins (default: 0)
+- **periodSeconds**: How often to perform the probe (default: 10)
+- **timeoutSeconds**: Seconds after which probe times out (default: 1)
+- **successThreshold**: Minimum consecutive successes for probe to be considered successful (default: 1)
+- **failureThreshold**: Number of consecutive failures before giving up and restarting (default: 3)
+
+### Liveness Probe Types
+
+#### 1. HTTP GET Probe
+
+Most common for web applications:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+    httpHeaders:
+    - name: Custom-Header
+      value: Awesome
+  initialDelaySeconds: 3
+  periodSeconds: 3
+```
+
+Returns success if HTTP status code is between 200-399.
+
+#### 2. TCP Socket Probe
+
+Checks if a TCP connection can be established:
+
+```yaml
+livenessProbe:
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 20
+```
+
+#### 3. Exec Probe
+
+Runs a command inside the container:
+
+```yaml
+livenessProbe:
+  exec:
+    command:
+    - cat
+    - /tmp/healthy
+  initialDelaySeconds: 5
+  periodSeconds: 5
+```
+
+Returns success if exit code is 0.
+
+## Readiness Probes
+
+### What is a Readiness Probe?
+
+A **readiness probe** determines if a container is ready to accept traffic. If the readiness probe fails, Kubernetes removes the pod's IP address from the endpoints of all Services matching the pod.
+
+### When to Use Readiness Probes
+
+- Prevent sending traffic to pods that are still initializing
+- Handle temporary unavailability (e.g., loading large data, connecting to database)
+- Gracefully handle backend dependencies being unavailable
+- Control when a pod receives traffic from a Service
+
+### Readiness vs Liveness
+
+| Aspect | Liveness Probe | Readiness Probe |
+|--------|---------------|-----------------|
+| Purpose | Is container alive? | Is container ready for traffic? |
+| Failure Action | Restart container | Remove from Service endpoints |
+| During Startup | May fail safely | Should fail until ready |
+| During Operation | Should always pass | May fail temporarily |
+
+### Readiness Probe Configuration
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-example
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      failureThreshold: 3
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10
+```
+
+### Common Readiness Patterns
+
+#### Database Connection Check
+
+```python
+# Python Flask example
+@app.route('/ready')
+def readiness():
+    try:
+        # Check database connection
+        db.execute('SELECT 1')
+        return 'OK', 200
+    except Exception:
+        return 'Not Ready', 503
+```
+
+#### Dependency Check
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+```
+
+## Startup Probes
+
+### What is a Startup Probe?
+
+A **startup probe** checks if the application within a container has started. It's designed for slow-starting containers.
+
+### When to Use Startup Probes
+
+- Applications with long initialization times
+- Legacy applications that need extra startup time
+- Prevent liveness probes from interfering with slow startup
+- Protect slow-starting containers from premature termination
+
+### How Startup Probes Work
+
+1. Startup probe runs until it succeeds
+2. All other probes are disabled during startup
+3. Once startup succeeds, liveness and readiness probes take over
+4. If startup probe fails after failureThreshold attempts, container is killed
+
+### Startup Probe Configuration
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: startup-example
+spec:
+  containers:
+  - name: slow-app
+    image: myapp:1.0
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 8080
+      failureThreshold: 30  # Allow up to 5 minutes (30 * 10s)
+      periodSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      periodSeconds: 10
+```
+
+### Startup Probe Benefits
+
+- **Prevents premature liveness failures** during initialization
+- **Flexible failure threshold** for variable startup times
+- **Isolated from liveness checks** so they don't conflict
+
+## Best Practices
+
+### 1. Always Use Both Liveness and Readiness
+
+```yaml
+containers:
+- name: app
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+```
+
+### 2. Set Appropriate Timeouts
+
+- **initialDelaySeconds**: Should exceed typical startup time
+- **periodSeconds**: Balance between responsiveness and resource usage (5-10s typical)
+- **failureThreshold**: Allow for transient failures (3-5 failures typical)
+
+### 3. Implement Lightweight Health Endpoints
+
+```python
+# Fast health check endpoint
+@app.route('/healthz')
+def liveness():
+    return 'OK', 200
+
+# More thorough readiness check
+@app.route('/ready')
+def readiness():
+    checks = [
+        check_database(),
+        check_cache(),
+        check_dependencies()
+    ]
+    if all(checks):
+        return 'Ready', 200
+    return 'Not Ready', 503
+```
+
+### 4. Avoid Expensive Operations in Probes
+
+❌ **Bad:**
+```python
+@app.route('/healthz')
+def health():
+    # Heavy database query
+    results = db.query('SELECT * FROM large_table')
+    return 'OK', 200
+```
+
+✅ **Good:**
+```python
+@app.route('/healthz')
+def health():
+    # Lightweight check
+    if app.is_running:
+        return 'OK', 200
+    return 'Not OK', 503
+```
+
+### 5. Use Startup Probes for Slow Applications
+
+```yaml
+startupProbe:
+  httpGet:
+    path: /startup
+    port: 8080
+  failureThreshold: 60  # 10 minutes max startup (60 * 10s)
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  periodSeconds: 10
+  failureThreshold: 3
+```
+
+## Common Pitfalls
+
+### 1. Liveness Probe Too Aggressive
+
+❌ Problem: Probe fails during high load, causing unnecessary restarts
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  periodSeconds: 5
+  timeoutSeconds: 1  # Too short!
+  failureThreshold: 1  # Too aggressive!
+```
+
+✅ Solution: Allow for transient failures
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+### 2. Readiness and Liveness Are Identical
+
+❌ Problem: Pod restarts when it should just stop receiving traffic
+
+```yaml
+# Both probes check the same thing
+livenessProbe:
+  httpGet:
+    path: /health
+readinessProbe:
+  httpGet:
+    path: /health
+```
+
+✅ Solution: Use different endpoints with different purposes
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz  # Basic "is alive?"
+readinessProbe:
+  httpGet:
+    path: /ready    # "Can handle traffic?"
+```
+
+### 3. Missing initialDelaySeconds
+
+❌ Problem: Probes fail during container startup
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  # Missing initialDelaySeconds!
+```
+
+✅ Solution: Add appropriate startup delay
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30  # Allow time to start
+```
+
+## Real-World Examples
+
+### Example 1: Python FastAPI Application
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-app
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: api
+        image: myapi:1.0
+        ports:
+        - containerPort: 8000
+        startupProbe:
+          httpGet:
+            path: /startup
+            port: 8000
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 2
+```
+
+### Example 2: Database Container
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  containers:
+  - name: db
+    image: postgres:14
+    livenessProbe:
+      exec:
+        command:
+        - pg_isready
+        - -U
+        - postgres
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      exec:
+        command:
+        - pg_isready
+        - -U
+        - postgres
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```
+
+### Example 3: gRPC Service
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grpc-service
+spec:
+  containers:
+  - name: server
+    image: mygrpc:1.0
+    livenessProbe:
+      grpc:
+        port: 50051
+      initialDelaySeconds: 10
+      periodSeconds: 10
+    readinessProbe:
+      grpc:
+        port: 50051
+        service: myservice.health.v1.Health
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```
+
+## Monitoring and Debugging
+
+### Check Probe Status
+
+```bash
+# Get pod events
+kubectl describe pod <pod-name>
+
+# Watch probe failures
+kubectl get events --watch | grep -i probe
+
+# Check container logs
+kubectl logs <pod-name> -c <container-name>
+```
+
+### Probe Failure Indicators
+
+```
+Events:
+  Type     Reason     Age   Message
+  ----     ------     ----  -------
+  Warning  Unhealthy  2m    Liveness probe failed: HTTP probe failed with statuscode: 500
+  Warning  Unhealthy  1m    Readiness probe failed: Get http://10.1.0.4:8080/ready: dial tcp 10.1.0.4:8080: connect: connection refused
+```
+
+## Summary
+
+| Probe Type | Purpose | Failure Action | Use Case |
+|------------|---------|----------------|----------|
+| **Liveness** | Is container alive? | Restart container | Detect deadlocks, force restarts |
+| **Readiness** | Ready for traffic? | Remove from Service | Control traffic routing |
+| **Startup** | Has container started? | Kill after threshold | Protect slow-starting apps |
+
+Choose the right combination of probes based on your application's needs to ensure high availability and reliability in Kubernetes.
+"""
+    
+    (output_dir / "kubernetes_probes.md").write_text(k8s_probes)
+    logger.info(f"Created Kubernetes Probes documentation")
+
+
 def create_all_sample_docs(base_dir: Path) -> dict[str, Path]:
     """
     Create all sample documentation sets.
@@ -781,6 +1309,11 @@ def create_all_sample_docs(base_dir: Path) -> dict[str, Path]:
         Dictionary mapping doc source to its directory path
     """
     docs_paths = {}
+    
+    # Create Kubernetes docs
+    k8s_dir = base_dir / "kubernetes"
+    create_sample_kubernetes_probes_docs(k8s_dir)
+    docs_paths["kubernetes"] = k8s_dir
 
     # Create Python docs
     python_dir = base_dir / "python"

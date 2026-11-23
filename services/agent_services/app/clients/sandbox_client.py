@@ -18,7 +18,7 @@ class SandboxClient:
             base_url
             or os.getenv(
                 "SANDBOX_BASE_URL",
-                "http://localhost:8001",
+                "http://sourcely-sandbox:8001",
             )
         ).rstrip("/")
 

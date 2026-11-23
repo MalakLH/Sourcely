@@ -2,7 +2,8 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT_DIR = Path(__file__).resolve().parents[4]
+# In Docker, we're at /app, so ROOT_DIR should point to /app
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
@@ -15,8 +16,8 @@ class Settings(BaseSettings):
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_dimension: int = 384
 
-    # LanceDB settings
-    lancedb_path: str = str(ROOT_DIR / "services" / "docs_service" / "data" / "vectordb")
+    # LanceDB settings - data directory inside container
+    lancedb_path: str = "/app/data/vectordb"
     docs_table_name: str = "kubernetes_docs"
 
     # Chunking settings

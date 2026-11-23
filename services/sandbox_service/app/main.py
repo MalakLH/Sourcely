@@ -22,3 +22,9 @@ async def root():
         "message": "Welcome to Sourcely Sandbox!",
         "status": "running",
     }
+
+
+@app.get("/health")
+async def health():
+    """Public health endpoint (no auth required)."""
+    return {"status": "healthy", "service": "sandbox-service"}

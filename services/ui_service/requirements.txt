@@ -1,5 +1,6 @@
-streamlit==1.29.0
+streamlit>=1.39.0
 requests==2.31.0
 httpx==0.25.2
 pydantic==2.5.0
 streamlit-ace==0.1.1
+Pillow==10.1.0

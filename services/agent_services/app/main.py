@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.agent.graph import agent_graph
+from app.api.routes import router as api_router
 from app.core.config import settings
 from app.schemas.request import ChatRequest
 from app.schemas.response import ChatResponse
@@ -10,6 +11,9 @@ app = FastAPI(
     description="Sourcely AI Developer Agent",
     version="0.1.0",
 )
+
+# Register API routes
+app.include_router(api_router)
 
 
 @app.get("/")
