@@ -171,12 +171,12 @@ async def search_web(request: SearchRequest) -> SearchResponse:
             sources_used=sources_used,
         )
 
-    except Exception as e:
-        logger.error(f"Search failed: {e}")
+    except (ValueError, TypeError, KeyError) as e:
+        logger.error("Search failed: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Search failed: {e!s}",
-        )
+        ) from e
 
 
 @app.get("/sources")
