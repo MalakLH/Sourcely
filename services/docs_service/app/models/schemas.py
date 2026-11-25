@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 
 
 class DocumentChunk(BaseModel):
@@ -23,7 +22,7 @@ class RetrievalQuery(BaseModel):
 
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=5, ge=1, le=20)
-    similarity_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    similarity_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class RetrievalResult(BaseModel):

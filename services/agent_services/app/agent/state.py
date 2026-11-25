@@ -10,7 +10,7 @@ class AgentState(TypedDict):
     # Optional execution inputs
     code: NotRequired[str | None]
     timeout: NotRequired[int]
-    
+
     # Fallback tracking
     needs_web_fallback: NotRequired[bool]
     docs_result: NotRequired[dict | None]

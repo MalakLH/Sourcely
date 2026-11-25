@@ -1,9 +1,8 @@
 """Chat interface component for interacting with the agent."""
 
 import asyncio
-import streamlit as st
-from typing import Optional
 
+import streamlit as st
 from utils.api_client import SourcelyAPIClient
 
 
@@ -43,11 +42,17 @@ def render_chat_interface(api_client: SourcelyAPIClient):
                 # Show confidence
                 if "confidence" in metadata:
                     confidence = metadata["confidence"]
-                    emoji = "🟢" if confidence == "high" else "🟡" if confidence == "medium" else "🔴"
+                    emoji = (
+                        "🟢"
+                        if confidence == "high"
+                        else "🟡"
+                        if confidence == "medium"
+                        else "🔴"
+                    )
                     st.caption(f"{emoji} Confidence: {confidence}")
 
                 # Show sources
-                if "sources" in metadata and metadata["sources"]:
+                if metadata.get("sources"):
                     with st.expander("📚 Sources"):
                         for idx, source in enumerate(metadata["sources"], 1):
                             st.markdown(f"{idx}. [{source}]({source})")
@@ -62,58 +67,59 @@ def render_chat_interface(api_client: SourcelyAPIClient):
             st.markdown(prompt)
 
         # Get agent response
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                try:
-                    response = asyncio.run(api_client.query_agent(prompt))
+        with st.chat_message("assistant"), st.spinner("Thinking..."):
+            try:
+                response = asyncio.run(api_client.query_agent(prompt))
 
-                    # Extract answer and metadata
-                    answer = response.get("answer", "I couldn't generate an answer.")
-                    tool_result = response.get("tool_result", {})
+                # Extract answer and metadata
+                answer = response.get("answer", "I couldn't generate an answer.")
+                tool_result = response.get("tool_result", {})
 
-                    # Display answer
-                    st.markdown(answer)
+                # Display answer
+                st.markdown(answer)
 
-                    # Prepare metadata
-                    metadata = {}
-                    if tool_result:
-                        metadata["tool"] = tool_result.get("tool", "unknown")
-                        if "confidence" in tool_result:
-                            metadata["confidence"] = tool_result["confidence"]
-                        if "sources" in tool_result:
-                            metadata["sources"] = tool_result["sources"]
+                # Prepare metadata
+                metadata = {}
+                if tool_result:
+                    metadata["tool"] = tool_result.get("tool", "unknown")
+                    if "confidence" in tool_result:
+                        metadata["confidence"] = tool_result["confidence"]
+                    if "sources" in tool_result:
+                        metadata["sources"] = tool_result["sources"]
 
-                        # Show tool used
-                        if "tool" in metadata:
-                            st.caption(f"🛠️ Tool: {metadata['tool']}")
+                    # Show tool used
+                    if "tool" in metadata:
+                        st.caption(f"🛠️ Tool: {metadata['tool']}")
 
-                        # Show confidence
-                        if "confidence" in metadata:
-                            confidence = metadata["confidence"]
-                            emoji = (
-                                "🟢"
-                                if confidence == "high"
-                                else "🟡" if confidence == "medium" else "🔴"
-                            )
-                            st.caption(f"{emoji} Confidence: {confidence}")
+                    # Show confidence
+                    if "confidence" in metadata:
+                        confidence = metadata["confidence"]
+                        emoji = (
+                            "🟢"
+                            if confidence == "high"
+                            else "🟡"
+                            if confidence == "medium"
+                            else "🔴"
+                        )
+                        st.caption(f"{emoji} Confidence: {confidence}")
 
-                        # Show sources
-                        if "sources" in metadata and metadata["sources"]:
-                            with st.expander("📚 Sources"):
-                                for idx, source in enumerate(metadata["sources"], 1):
-                                    st.markdown(f"{idx}. [{source}]({source})")
+                    # Show sources
+                    if metadata.get("sources"):
+                        with st.expander("📚 Sources"):
+                            for idx, source in enumerate(metadata["sources"], 1):
+                                st.markdown(f"{idx}. [{source}]({source})")
 
-                    # Add assistant response to chat history
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": answer, "metadata": metadata}
-                    )
+                # Add assistant response to chat history
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": answer, "metadata": metadata}
+                )
 
-                except Exception as e:
-                    error_msg = f"❌ Error: {str(e)}"
-                    st.error(error_msg)
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": error_msg}
-                    )
+            except Exception as e:
+                error_msg = f"❌ Error: {e!s}"
+                st.error(error_msg)
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": error_msg}
+                )
 
     # Clear chat button
     if st.sidebar.button("🗑️ Clear Chat History"):

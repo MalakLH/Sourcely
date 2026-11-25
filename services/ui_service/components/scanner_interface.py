@@ -1,9 +1,9 @@
 """Scanner interface component for code security analysis."""
 
 import asyncio
+
 import streamlit as st
 from streamlit_ace import st_ace
-
 from utils.api_client import SourcelyAPIClient
 
 
@@ -48,7 +48,9 @@ def render_scanner_interface(api_client: SourcelyAPIClient):
         include_explanations = st.checkbox("Generate LLM Explanations", value=True)
 
         # Scan button
-        scan_button = st.button("🔍 Run Vulnerability Scan", type="primary", use_container_width=True)
+        scan_button = st.button(
+            "🔍 Run Vulnerability Scan", type="primary", use_container_width=True
+        )
 
     with col1:
         # Code editor
@@ -89,7 +91,9 @@ function displayMessage(msg) {
 
         # Initialize session state for code
         if "code_content" not in st.session_state:
-            st.session_state.code_content = sample_code.get(language, "# Enter your code here")
+            st.session_state.code_content = sample_code.get(
+                language, "# Enter your code here"
+            )
 
         # Code editor with syntax highlighting
         code_content = st_ace(
@@ -127,9 +131,9 @@ function displayMessage(msg) {
 
                 with col2:
                     findings_by_severity = scan_result.get("findings_by_severity", {})
-                    critical_high = (
-                        findings_by_severity.get("CRITICAL", 0) + findings_by_severity.get("HIGH", 0)
-                    )
+                    critical_high = findings_by_severity.get(
+                        "CRITICAL", 0
+                    ) + findings_by_severity.get("HIGH", 0)
                     st.metric("Critical + High", critical_high)
 
                 with col3:
@@ -172,7 +176,9 @@ function displayMessage(msg) {
                         }
                         emoji = severity_colors.get(severity, "⚪")
 
-                        st.markdown(f"### {emoji} {severity} ({len(sev_findings)} findings)")
+                        st.markdown(
+                            f"### {emoji} {severity} ({len(sev_findings)} findings)"
+                        )
 
                         # Display each finding
                         for idx, finding in enumerate(sev_findings, 1):
@@ -180,8 +186,12 @@ function displayMessage(msg) {
                                 f"{idx}. {finding.get('rule_id', 'Unknown')} - Line {finding.get('line', '?')}"
                             ):
                                 # Basic info
-                                st.markdown(f"**Description:** {finding.get('description', 'N/A')}")
-                                st.markdown(f"**Scanner:** {finding.get('scanner', 'N/A')}")
+                                st.markdown(
+                                    f"**Description:** {finding.get('description', 'N/A')}"
+                                )
+                                st.markdown(
+                                    f"**Scanner:** {finding.get('scanner', 'N/A')}"
+                                )
                                 st.markdown(f"**File:** `{finding.get('file', 'N/A')}`")
                                 st.markdown(f"**Line:** {finding.get('line', 'N/A')}")
 
@@ -189,7 +199,9 @@ function displayMessage(msg) {
                                     st.markdown(f"**CWE:** {finding['cwe_id']}")
 
                                 if finding.get("confidence"):
-                                    st.markdown(f"**Confidence:** {finding['confidence']}")
+                                    st.markdown(
+                                        f"**Confidence:** {finding['confidence']}"
+                                    )
 
                                 # Code snippet
                                 if finding.get("code_snippet"):
@@ -205,19 +217,23 @@ function displayMessage(msg) {
                                 # Fix suggestion
                                 if finding.get("fix_suggestion"):
                                     st.markdown("**💡 Suggested Fix:**")
-                                    st.code(finding["fix_suggestion"], language=language)
+                                    st.code(
+                                        finding["fix_suggestion"], language=language
+                                    )
 
                 # Display scan metadata
                 st.divider()
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.caption(f"Scanners used: {', '.join(scan_result.get('scanners_used', []))}")
+                    st.caption(
+                        f"Scanners used: {', '.join(scan_result.get('scanners_used', []))}"
+                    )
                 with col2:
                     duration = scan_result.get("scan_duration_seconds", 0)
                     st.caption(f"Scan completed in {duration:.2f}s")
 
             except Exception as e:
-                st.error(f"❌ Scan failed: {str(e)}")
+                st.error(f"❌ Scan failed: {e!s}")
                 st.exception(e)
 
     elif scan_button:

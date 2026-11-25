@@ -3,7 +3,6 @@ import logging
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 from app.core.config import settings
 from app.models.schemas import ScanFinding, SeverityLevel
@@ -103,9 +102,7 @@ class BanditScanner:
             logger.error(f"Bandit scan timed out after {settings.scan_timeout_seconds}s")
             return []
         except FileNotFoundError:
-            logger.error(
-                "Bandit not found. Please install it: pip install bandit"
-            )
+            logger.error("Bandit not found. Please install it: pip install bandit")
             return []
         except Exception as e:
             logger.error(f"Error running Bandit: {e}")

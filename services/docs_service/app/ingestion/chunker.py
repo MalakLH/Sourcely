@@ -1,12 +1,9 @@
 import hashlib
 import re
 from dataclasses import dataclass
-from typing import Optional
 
 import tiktoken
 from bs4 import BeautifulSoup, NavigableString, Tag
-
-from app.core.config import settings
 
 
 @dataclass
@@ -58,7 +55,7 @@ class HeadingAwareChunker:
         headings = []
         heading_tags = soup.find_all(["h1", "h2", "h3"])
 
-        for i, heading_tag in enumerate(heading_tags):
+        for _i, heading_tag in enumerate(heading_tags):
             level = int(heading_tag.name[1])  # Extract number from h1, h2, h3
             title = heading_tag.get_text(strip=True)
 
@@ -134,9 +131,7 @@ class HeadingAwareChunker:
 
         return headings
 
-    def build_heading_path(
-        self, headings: list[tuple[int, str, str]], current_index: int
-    ) -> str:
+    def build_heading_path(self, headings: list[tuple[int, str, str]], current_index: int) -> str:
         """
         Build hierarchical heading path (e.g., 'Overview > Concepts > Pods').
         """

@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from langchain_ollama import ChatOllama
 from pydantic import BaseModel, Field
@@ -16,10 +15,8 @@ class IntentClassification(BaseModel):
     tool: str = Field(
         description="The tool to use: 'docs_search', 'web_guide', 'sandbox_run', or 'code_scan'"
     )
-    confidence: float = Field(
-        description="Confidence score between 0.0 and 1.0", ge=0.0, le=1.0
-    )
-    reasoning: Optional[str] = Field(
+    confidence: float = Field(description="Confidence score between 0.0 and 1.0", ge=0.0, le=1.0)
+    reasoning: str | None = Field(
         None, description="Brief explanation of why this tool was selected"
     )
 

@@ -194,12 +194,12 @@ Every sandbox execution is recorded in a tamper-evident blockchain ledger:
 
 ```python
 {
-  "block_hash": "sha256(...)",
-  "previous_hash": "sha256(...)",
-  "timestamp": "2024-11-17T16:51:48Z",
-  "code_hash": "sha256(...)",
-  "execution_result": {...},
-  "nonce": 42
+    "block_hash": "sha256(...)",
+    "previous_hash": "sha256(...)",
+    "timestamp": "2024-11-17T16:51:48Z",
+    "code_hash": "sha256(...)",
+    "execution_result": {...},
+    "nonce": 42,
 }
 ```
 

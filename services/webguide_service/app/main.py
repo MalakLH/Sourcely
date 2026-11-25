@@ -5,17 +5,15 @@ Exposes Malak's search and ranking functionality as a REST API.
 """
 
 import logging
-from typing import Optional
-
-from fastapi import FastAPI, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 
 # Import Malak's implementations
 from app.schema.search_result import SearchResult
 from app.search.github import GitHubSearchClient
 from app.search.ranking import rank_results
 from app.search.searxng import SearXNGClient
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,11 +38,15 @@ class SearchRequest(BaseModel):
     """Request schema for web search."""
 
     query: str = Field(..., min_length=1, max_length=500, description="Search query")
-    max_results: int = Field(default=10, ge=1, le=50, description="Maximum results to return")
+    max_results: int = Field(
+        default=10, ge=1, le=50, description="Maximum results to return"
+    )
     sources: list[str] = Field(
         default=["searxng", "github"], description="Search sources to use"
     )
-    include_github: bool = Field(default=True, description="Include GitHub repository search")
+    include_github: bool = Field(
+        default=True, description="Include GitHub repository search"
+    )
 
 
 class SearchResponse(BaseModel):
@@ -149,7 +151,9 @@ async def search_web(request: SearchRequest) -> SearchResponse:
                     "source": result.source,
                     "ranking_score": result.ranking_score or 0.0,
                     "published_date": (
-                        result.published_date.isoformat() if result.published_date else None
+                        result.published_date.isoformat()
+                        if result.published_date
+                        else None
                     ),
                     "stars": result.stars,
                     "language": result.language,
@@ -171,7 +175,7 @@ async def search_web(request: SearchRequest) -> SearchResponse:
         logger.error(f"Search failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Search failed: {str(e)}",
+            detail=f"Search failed: {e!s}",
         )
 
 

@@ -4,7 +4,7 @@ from app.models.schemas import SeverityLevel
 from app.scanners.bandit_scanner import BanditScanner
 from app.scanners.scanner_orchestrator import ScannerOrchestrator
 from app.scanners.semgrep_scanner import SemgrepScanner
-from tests.vulnerable_snippets import VULNERABLE_SNIPPETS, VULNERABILITY_CATEGORIES
+from tests.vulnerable_snippets import VULNERABILITY_CATEGORIES, VULNERABLE_SNIPPETS
 
 
 @pytest.fixture
@@ -138,8 +138,8 @@ def test_findings_by_severity_count(vulnerable_python_code):
     assert total_from_counts == response.total_findings
 
 
-
 # ===== Vulnerable Snippets Testing (20+ test cases) =====
+
 
 @pytest.mark.parametrize("snippet_name", VULNERABLE_SNIPPETS.keys())
 def test_scanner_detects_all_vulnerabilities(snippet_name):

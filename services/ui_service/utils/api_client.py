@@ -1,7 +1,6 @@
 """API client for communicating with backend services."""
 
 import httpx
-from typing import Optional
 
 
 class SourcelyAPIClient:
@@ -19,7 +18,7 @@ class SourcelyAPIClient:
         self.docs_url = docs_url.rstrip("/")
         self.timeout = timeout
 
-    async def query_agent(self, query: str, code: Optional[str] = None) -> dict:
+    async def query_agent(self, query: str, code: str | None = None) -> dict:
         """
         Send a query to the agent service.
 
@@ -33,7 +32,7 @@ class SourcelyAPIClient:
         payload = {"query": query}
         if code:
             payload["code"] = code
-        
+
         async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 f"{self.agent_url}/api/query",
@@ -46,7 +45,7 @@ class SourcelyAPIClient:
         self,
         code: str,
         language: str = "python",
-        scanners: list[str] = None,
+        scanners: list[str] | None = None,
         include_explanations: bool = True,
     ) -> dict:
         """
@@ -77,7 +76,9 @@ class SourcelyAPIClient:
             response.raise_for_status()
             return response.json()
 
-    async def explain_finding(self, finding: dict, code_context: Optional[str] = None) -> dict:
+    async def explain_finding(
+        self, finding: dict, code_context: str | None = None
+    ) -> dict:
         """
         Get LLM explanation for a security finding.
 
@@ -131,7 +132,7 @@ class SourcelyAPIClient:
                 results["docs"] = response.status_code == 200
             except Exception:
                 results["docs"] = False
-            
+
             # Webguide and Sandbox are internal, mark as unknown for now
             results["webguide"] = False
             results["sandbox"] = False

@@ -1,8 +1,6 @@
 import logging
-from typing import Optional
 
 import lancedb
-import numpy as np
 import pyarrow as pa
 from sentence_transformers import SentenceTransformer
 
@@ -12,7 +10,7 @@ from app.models.schemas import DocumentChunk, RetrievalResult
 logger = logging.getLogger(__name__)
 
 # Global embedding model (loaded once on startup)
-_embedding_model: Optional[SentenceTransformer] = None
+_embedding_model: SentenceTransformer | None = None
 
 
 def initialize_embedding_model() -> None:
@@ -38,7 +36,7 @@ class VectorStore:
     Handles embedding generation, storage, and similarity search.
     """
 
-    def __init__(self, db_path: Optional[str] = None, table_name: Optional[str] = None):
+    def __init__(self, db_path: str | None = None, table_name: str | None = None):
         self.db_path = db_path or settings.lancedb_path
         self.table_name = table_name or settings.docs_table_name
         self.db = lancedb.connect(self.db_path)
@@ -124,7 +122,7 @@ class VectorStore:
 
         # Prepare data for insertion
         data = []
-        for chunk, embedding in zip(chunks, embeddings):
+        for chunk, embedding in zip(chunks, embeddings, strict=False):
             data.append(
                 {
                     "chunk_id": chunk.chunk_id,
@@ -155,7 +153,7 @@ class VectorStore:
         self,
         query: str,
         top_k: int = 5,
-        similarity_threshold: Optional[float] = None,
+        similarity_threshold: float | None = None,
     ) -> list[RetrievalResult]:
         """
         Search for similar documents using vector similarity.

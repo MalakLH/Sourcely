@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from langchain_ollama import ChatOllama
 
@@ -27,7 +26,7 @@ class LLMExplainer:
     def explain_finding(
         self,
         finding: ScanFinding,
-        code_context: Optional[str] = None,
+        code_context: str | None = None,
     ) -> ExplanationResponse:
         """
         Generate a detailed explanation for a security finding.
@@ -162,7 +161,9 @@ Response:"""
 
         references = []
         if finding.cwe_id:
-            references.append(f"https://cwe.mitre.org/data/definitions/{finding.cwe_id.replace('CWE-', '')}.html")
+            references.append(
+                f"https://cwe.mitre.org/data/definitions/{finding.cwe_id.replace('CWE-', '')}.html"
+            )
         references.append("https://owasp.org/www-project-top-ten/")
 
         return ExplanationResponse(
@@ -176,7 +177,7 @@ Response:"""
     async def explain_findings_batch(
         self,
         findings: list[ScanFinding],
-        code_context: Optional[str] = None,
+        code_context: str | None = None,
     ) -> list[ExplanationResponse]:
         """
         Generate explanations for multiple findings.

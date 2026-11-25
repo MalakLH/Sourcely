@@ -1,10 +1,9 @@
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """Severity levels for security findings."""
 
     LOW = "LOW"
@@ -18,25 +17,27 @@ class ScanFinding(BaseModel):
 
     file: str = Field(..., description="File path where the issue was found")
     line: int = Field(..., description="Line number of the issue")
-    column: Optional[int] = Field(None, description="Column number (if available)")
+    column: int | None = Field(None, description="Column number (if available)")
     rule_id: str = Field(..., description="Scanner rule identifier")
     severity: SeverityLevel = Field(..., description="Severity level of the finding")
     description: str = Field(..., description="Description of the security issue")
     scanner: str = Field(..., description="Scanner that detected this issue (bandit/semgrep)")
-    code_snippet: Optional[str] = Field(None, description="Code snippet showing the issue")
-    cwe_id: Optional[str] = Field(None, description="CWE identifier if available")
-    confidence: Optional[str] = Field(None, description="Confidence level of the finding")
-    fix_suggestion: Optional[str] = Field(None, description="Suggested fix (if available)")
+    code_snippet: str | None = Field(None, description="Code snippet showing the issue")
+    cwe_id: str | None = Field(None, description="CWE identifier if available")
+    confidence: str | None = Field(None, description="Confidence level of the finding")
+    fix_suggestion: str | None = Field(None, description="Suggested fix (if available)")
 
 
 class ScanRequest(BaseModel):
     """Request schema for code scanning."""
 
-    code: Optional[str] = Field(None, description="Code content to scan (for inline scanning)")
-    file_path: Optional[str] = Field(
+    code: str | None = Field(None, description="Code content to scan (for inline scanning)")
+    file_path: str | None = Field(
         None, description="Path to file or directory to scan (for file-based scanning)"
     )
-    language: Optional[str] = Field(None, description="Programming language (python, javascript, etc.)")
+    language: str | None = Field(
+        None, description="Programming language (python, javascript, etc.)"
+    )
     scanners: list[str] = Field(
         default=["bandit", "semgrep"], description="List of scanners to run"
     )
@@ -62,9 +63,7 @@ class ExplanationRequest(BaseModel):
     """Request schema for LLM-based explanation of a finding."""
 
     finding: ScanFinding = Field(..., description="The finding to explain")
-    code_context: Optional[str] = Field(
-        None, description="Additional code context around the finding"
-    )
+    code_context: str | None = Field(None, description="Additional code context around the finding")
 
 
 class ExplanationResponse(BaseModel):

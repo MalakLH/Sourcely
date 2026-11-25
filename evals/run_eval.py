@@ -14,7 +14,6 @@ import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import httpx
 
@@ -40,7 +39,7 @@ class DocsEvaluator:
         self.docs_service_url = docs_service_url
         self.client = httpx.AsyncClient(timeout=30.0)
 
-    async def retrieve(self, query: str, top_k: int = 5) -> Optional[dict]:
+    async def retrieve(self, query: str, top_k: int = 5) -> dict | None:
         """Call the docs-service /retrieve endpoint."""
         try:
             response = await self.client.post(
@@ -161,7 +160,9 @@ class DocsEvaluator:
             else 0.0
         )
 
-        keyword_check = self.check_keyword_presence(retrieval_response, expected_keywords)
+        keyword_check = self.check_keyword_presence(
+            retrieval_response, expected_keywords
+        )
 
         return {
             "test_id": test_case["id"],
@@ -275,7 +276,7 @@ def print_metrics(metrics: EvalMetrics) -> None:
     print("EVALUATION RESULTS")
     print("=" * 70)
 
-    print(f"\nOverall Performance:")
+    print("\nOverall Performance:")
     print(f"  Total Queries:      {metrics.total_queries}")
     print(f"  Successful:         {metrics.successful_queries}")
     print(f"  Failed:             {metrics.failed_queries}")
@@ -283,15 +284,19 @@ def print_metrics(metrics: EvalMetrics) -> None:
     print(f"  Avg Similarity:     {metrics.avg_similarity_score:.4f}")
     print(f"  Avg Retrieved:      {metrics.avg_retrieved_count:.2f}")
 
-    print(f"\nConfidence Distribution:")
+    print("\nConfidence Distribution:")
     for conf, count in sorted(metrics.confidence_distribution.items()):
         percentage = (
-            count / metrics.successful_queries * 100 if metrics.successful_queries > 0 else 0
+            count / metrics.successful_queries * 100
+            if metrics.successful_queries > 0
+            else 0
         )
         print(f"  {conf.capitalize():10s}: {count:3d} ({percentage:5.1f}%)")
 
-    print(f"\nPerformance by Category:")
-    print(f"  {'Category':<25s} {'Hit Rate':>10s} {'Avg Sim':>10s} {'Kw Cov':>10s} {'Count':>8s}")
+    print("\nPerformance by Category:")
+    print(
+        f"  {'Category':<25s} {'Hit Rate':>10s} {'Avg Sim':>10s} {'Kw Cov':>10s} {'Count':>8s}"
+    )
     print(f"  {'-' * 25} {'-' * 10} {'-' * 10} {'-' * 10} {'-' * 8}")
 
     for cat, perf in sorted(metrics.category_performance.items()):

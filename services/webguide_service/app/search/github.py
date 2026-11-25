@@ -33,15 +33,17 @@ class GitHubSearchClient:
             raise ValueError("max_results must be between 1 and 100.")
 
         try:
-            async with httpx.AsyncClient(
-                timeout=self.timeout,
-                transport=self.transport,
-                headers={
-                    "Accept": "application/vnd.github+json",
-                    "X-GitHub-Api-Version": "2022-11-28",
-                    "User-Agent": "Sourcely-WebGuide/0.1.0 (Python/httpx)",  # Required by GitHub API
-                },
-            ) as client:
+            async with (
+                httpx.AsyncClient(
+                    timeout=self.timeout,
+                    transport=self.transport,
+                    headers={
+                        "Accept": "application/vnd.github+json",
+                        "X-GitHub-Api-Version": "2022-11-28",
+                        "User-Agent": "Sourcely-WebGuide/0.1.0 (Python/httpx)",  # Required by GitHub API
+                    },
+                ) as client
+            ):
                 response = await client.get(
                     f"{self.BASE_URL}/search/repositories",
                     params={
@@ -64,9 +66,7 @@ class GitHubSearchClient:
                     "GitHub API rate limit exceeded. Try again later."
                 ) from exc
             elif exc.response.status_code == 422:
-                raise GitHubSearchError(
-                    "Invalid GitHub search query format."
-                ) from exc
+                raise GitHubSearchError("Invalid GitHub search query format.") from exc
             else:
                 raise GitHubSearchError(
                     f"GitHub returned HTTP {exc.response.status_code}."

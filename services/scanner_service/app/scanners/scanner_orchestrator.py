@@ -1,6 +1,5 @@
 import logging
 import time
-from typing import Optional
 
 from app.models.schemas import ScanFinding, ScanResponse
 from app.scanners.bandit_scanner import BanditScanner
@@ -27,7 +26,7 @@ class ScannerOrchestrator:
         self,
         code: str,
         scanners: list[str],
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> ScanResponse:
         """
         Scan code using specified scanners.
@@ -78,7 +77,7 @@ class ScannerOrchestrator:
         self,
         file_path: str,
         scanners: list[str],
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> ScanResponse:
         """
         Scan a file using specified scanners.

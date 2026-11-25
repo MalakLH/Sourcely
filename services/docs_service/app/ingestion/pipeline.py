@@ -2,7 +2,6 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from app.core.config import settings
 from app.ingestion.chunker import HeadingAwareChunker, generate_chunk_id
@@ -138,7 +137,7 @@ class DocumentIngestionPipeline:
             try:
                 # Generate source URL from file path using real URL mappings
                 from app.ingestion.url_mappings import get_real_url
-                
+
                 relative_path = file_path.relative_to(directory_path)
                 source_url = get_real_url(str(relative_path))
 
@@ -174,7 +173,7 @@ class DocumentIngestionPipeline:
 
     def ingest_kubernetes_docs(
         self,
-        docs_path: Optional[Path] = None,
+        docs_path: Path | None = None,
         doc_version: str = "latest",
         force_reindex: bool = False,
     ) -> IngestionResponse:

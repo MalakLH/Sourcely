@@ -5,7 +5,7 @@ from langgraph.graph import END, START, StateGraph
 
 from app.agent.router import route_request
 from app.agent.state import AgentState
-from app.tools.base import ToolRequest, ToolStatus
+from app.tools.base import ToolRequest
 from app.tools.docs_tool import run_docs_tool
 from app.tools.sandbox_tool import run_sandbox_tool
 from app.tools.web_tool import run_web_tool
@@ -30,13 +30,13 @@ def docs_node(state: AgentState) -> dict:
 
     # Check confidence and trigger web fallback if needed
     tool_result = result.model_dump()
-    
+
     # Extract confidence from metadata or result
     confidence_str = tool_result.get("metadata", {}).get("confidence")
-    
+
     # Parse confidence score (could be "low", "medium", "high" or a float)
     should_fallback = False
-    
+
     if confidence_str:
         if isinstance(confidence_str, str):
             # Map string confidence to numeric
@@ -44,18 +44,20 @@ def docs_node(state: AgentState) -> dict:
             confidence_score = confidence_map.get(confidence_str.lower(), 0.5)
         else:
             confidence_score = float(confidence_str)
-        
+
         if confidence_score < DOCS_CONFIDENCE_THRESHOLD:
             logger.info(
                 f"Docs confidence {confidence_score:.2f} below threshold {DOCS_CONFIDENCE_THRESHOLD} "
                 f"- triggering web fallback"
             )
             should_fallback = True
-    
+
     # Store docs result for potential combination AND set tool_result for non-fallback case
     return {
         "docs_result": tool_result,
-        "tool_result": tool_result if not should_fallback else None,  # Set tool_result if not falling back
+        "tool_result": tool_result
+        if not should_fallback
+        else None,  # Set tool_result if not falling back
         "needs_web_fallback": should_fallback,
         "tools_used": ["docs"],
     }
@@ -64,25 +66,25 @@ def docs_node(state: AgentState) -> dict:
 async def web_node(state: AgentState) -> dict:
     result = await run_web_tool(ToolRequest(query=state["query"]))
     web_result = result.model_dump()
-    
+
     # Check if this is a fallback call
     docs_result = state.get("docs_result")
-    
+
     if docs_result:
         # Combine docs + web results
         logger.info("Combining docs and web results for low-confidence fallback")
-        
+
         # Merge content
         docs_content = docs_result.get("content", "")
         web_content = web_result.get("content", "")
-        
+
         combined_content = f"{docs_content}\n\n--- Additional Web Resources ---\n\n{web_content}"
-        
+
         # Merge sources
         docs_sources = docs_result.get("sources", [])
         web_sources = web_result.get("sources", [])
         combined_sources = docs_sources + web_sources
-        
+
         # Create combined result
         combined_result = {
             "status": "success",
@@ -95,7 +97,7 @@ async def web_node(state: AgentState) -> dict:
                 "web_sources_count": len(web_sources),
             },
         }
-        
+
         return {
             "tool_result": combined_result,
             "needs_web_fallback": False,
@@ -130,11 +132,11 @@ def sandbox_node(state: AgentState) -> dict:
 
 def final_node(state: AgentState) -> dict:
     result = state.get("tool_result")
-    
+
     if not result:
         # Fallback scenario - use docs result if available
         result = state.get("docs_result", {})
-    
+
     answer = result.get("content", "No result available.") if result else "No result available."
 
     return {"answer": answer}
@@ -147,12 +149,12 @@ def select_tool(state: AgentState) -> Literal["docs", "web", "sandbox"]:
 def check_web_fallback(state: AgentState) -> Literal["web", "final"]:
     """
     Conditional edge that checks if web fallback is needed after docs retrieval.
-    
+
     If docs confidence is below threshold, route to web_node for additional results.
     Otherwise, proceed to final_node.
     """
     needs_fallback = state.get("needs_web_fallback", False)
-    
+
     if needs_fallback:
         logger.info("Routing to web fallback after low-confidence docs result")
         return "web"

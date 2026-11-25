@@ -1,6 +1,5 @@
 import logging
 import time
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -15,9 +14,9 @@ router = APIRouter(prefix="/api", tags=["agent"])
 
 class QueryRequest(BaseModel):
     query: str = Field(..., min_length=1, description="User query")
-    session_id: Optional[str] = Field(None, description="Session identifier for context tracking")
-    code: Optional[str] = Field(None, description="Optional code snippet to execute or scan")
-    timeout: Optional[int] = Field(5, ge=1, le=10, description="Sandbox execution timeout in seconds")
+    session_id: str | None = Field(None, description="Session identifier for context tracking")
+    code: str | None = Field(None, description="Optional code snippet to execute or scan")
+    timeout: int | None = Field(5, ge=1, le=10, description="Sandbox execution timeout in seconds")
 
 
 class QueryResponse(BaseModel):
@@ -25,10 +24,12 @@ class QueryResponse(BaseModel):
     tool_used: str = Field(..., description="Tool that was invoked (docs, web, sandbox)")
     citations: list[str] = Field(default_factory=list, description="Source URLs or references")
     sources: list[dict] = Field(default_factory=list, description="Detailed source information")
-    confidence: Optional[str] = Field(None, description="Confidence level from docs retrieval")
+    confidence: str | None = Field(None, description="Confidence level from docs retrieval")
     execution_time_ms: float = Field(..., description="Total execution time in milliseconds")
     status: str = Field(..., description="Execution status (success or error)")
-    metadata: dict = Field(default_factory=dict, description="Additional metadata from tool execution")
+    metadata: dict = Field(
+        default_factory=dict, description="Additional metadata from tool execution"
+    )
 
 
 @router.post("/query", response_model=QueryResponse)
@@ -78,7 +79,7 @@ async def query_agent(request: QueryRequest) -> QueryResponse:
         tools_used = result.get("tools_used", [tool_used])  # Support multiple tools
         tool_result = result.get("tool_result")
         answer = result.get("answer", "No answer generated.")
-        
+
         # Handle case where tool_result might be None
         if not tool_result:
             tool_result = {}
@@ -100,7 +101,7 @@ async def query_agent(request: QueryRequest) -> QueryResponse:
 
         # Extract confidence if available (from docs tool)
         confidence = metadata.get("confidence")
-        
+
         # Determine tool display (handle combined tools)
         if len(tools_used) > 1:
             tool_display = "+".join(tools_used)  # "docs+web"

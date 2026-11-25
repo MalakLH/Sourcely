@@ -36,16 +36,16 @@ URL_MAPPINGS = {
 def get_real_url(file_path_str: str) -> str:
     """
     Get the real documentation URL for a given file path.
-    
+
     Args:
         file_path_str: File path as string (e.g., "kubernetes/pods.md")
-    
+
     Returns:
         Real documentation URL or fallback URL with filename
     """
     # Extract just the filename
     filename = file_path_str.split("/")[-1] if "/" in file_path_str else file_path_str
     filename = filename.split("\\")[-1] if "\\" in filename else filename
-    
+
     # Return mapped URL if exists
     return URL_MAPPINGS.get(filename, f"https://docs.sourcely.ai/{file_path_str}")

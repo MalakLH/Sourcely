@@ -1,6 +1,4 @@
-import asyncio
 import logging
-from typing import Optional
 
 import httpx
 
@@ -14,7 +12,7 @@ WEBGUIDE_SERVICE_URL = "http://sourcely-webguide:8003"
 async def search_web_guide(
     query: str,
     max_results: int = 10,
-) -> Optional[dict]:
+) -> dict | None:
     """
     Call the webguide-service /search endpoint asynchronously.
 
@@ -87,7 +85,7 @@ def format_web_results(webguide_response: dict) -> tuple[str, list[str]]:
             if stars:
                 result_text += f" ⭐ {stars:,}"
         else:
-            result_text += f" 🌐 Web"
+            result_text += " 🌐 Web"
 
         result_text += f" [score: {ranking_score:.3f}]\n"
 
@@ -140,7 +138,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
 
         # Format sources as list of dicts for ToolResult schema
         formatted_sources = [{"url": url, "title": url} for url in sources if url]
-        
+
         return ToolResult(
             status=ToolStatus.SUCCESS,
             tool=ToolName.WEB,

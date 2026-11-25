@@ -1,5 +1,6 @@
-import pytest
 from datetime import datetime
+
+import pytest
 
 from app.ingestion.embedder import VectorStore
 from app.models.schemas import DocumentChunk

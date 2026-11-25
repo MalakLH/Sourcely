@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Optional
 
 import httpx
 from langchain_ollama import ChatOllama
@@ -16,7 +15,7 @@ DOCS_SERVICE_URL = "http://sourcely-docs:8002"
 async def retrieve_from_docs_service(
     query: str,
     top_k: int = 5,
-) -> Optional[dict]:
+) -> dict | None:
     """
     Call the docs-service /retrieve endpoint asynchronously.
 
@@ -115,7 +114,9 @@ Answer:"""
         generated_answer = response.content.strip()
 
         # Append confidence and sources
-        answer_with_metadata = f"{generated_answer}\n\n---\n**Confidence:** {confidence}\n**Sources:**\n"
+        answer_with_metadata = (
+            f"{generated_answer}\n\n---\n**Confidence:** {confidence}\n**Sources:**\n"
+        )
         for idx, source in enumerate(sources, 1):
             answer_with_metadata += f"[{idx}] {source}\n"
 
@@ -212,7 +213,7 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
 
         # Format sources as list of dicts for ToolResult schema
         formatted_sources = [{"url": url, "title": url} for url in sources if url]
-        
+
         return ToolResult(
             status=ToolStatus.SUCCESS,
             tool=ToolName.DOCS,

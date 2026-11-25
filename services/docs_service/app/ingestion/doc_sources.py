@@ -128,7 +128,7 @@ from package.module import Class
 """
 
     (output_dir / "python_basics.md").write_text(python_basics)
-    logger.info(f"Created Python basics doc")
+    logger.info("Created Python basics doc")
 
     # Python standard library - collections
     python_collections = """# Python Collections Module
@@ -246,7 +246,7 @@ print(chain['b'])  # 2 (from first dict)
 """
 
     (output_dir / "python_collections.md").write_text(python_collections)
-    logger.info(f"Created Python collections doc")
+    logger.info("Created Python collections doc")
 
     # Python - asyncio
     python_asyncio = """# Python Asyncio
@@ -394,7 +394,7 @@ async def consumer(queue):
 """
 
     (output_dir / "python_asyncio.md").write_text(python_asyncio)
-    logger.info(f"Created Python asyncio doc")
+    logger.info("Created Python asyncio doc")
 
 
 def create_sample_docker_docs(output_dir: Path) -> None:
@@ -591,7 +591,7 @@ docker-compose up --scale web=3
 """
 
     (output_dir / "docker_basics.md").write_text(docker_basics)
-    logger.info(f"Created Docker basics doc")
+    logger.info("Created Docker basics doc")
 
     # Docker networking
     docker_networking = """# Docker Networking
@@ -767,18 +767,18 @@ Docker automatically manages iptables rules for container networking.
 """
 
     (output_dir / "docker_networking.md").write_text(docker_networking)
-    logger.info(f"Created Docker networking doc")
+    logger.info("Created Docker networking doc")
 
 
 def create_sample_kubernetes_probes_docs(output_dir: Path) -> None:
     """
     Create comprehensive Kubernetes Probes documentation.
-    
+
     Args:
         output_dir: Directory to write sample docs
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Kubernetes Liveness, Readiness, Startup Probes
     k8s_probes = """# Kubernetes Health Probes
 
@@ -1293,9 +1293,9 @@ Events:
 
 Choose the right combination of probes based on your application's needs to ensure high availability and reliability in Kubernetes.
 """
-    
+
     (output_dir / "kubernetes_probes.md").write_text(k8s_probes)
-    logger.info(f"Created Kubernetes Probes documentation")
+    logger.info("Created Kubernetes Probes documentation")
 
 
 def create_all_sample_docs(base_dir: Path) -> dict[str, Path]:
@@ -1309,7 +1309,7 @@ def create_all_sample_docs(base_dir: Path) -> dict[str, Path]:
         Dictionary mapping doc source to its directory path
     """
     docs_paths = {}
-    
+
     # Create Kubernetes docs
     k8s_dir = base_dir / "kubernetes"
     create_sample_kubernetes_probes_docs(k8s_dir)
