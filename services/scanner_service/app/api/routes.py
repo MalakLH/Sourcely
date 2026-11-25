@@ -98,7 +98,7 @@ async def scan_code(request: ScanRequest) -> ScanResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Scan failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/scanners")
@@ -187,4 +187,4 @@ async def explain_finding(request: ExplanationRequest) -> ExplanationResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate explanation: {str(e)}",
-        )
+        ) from e

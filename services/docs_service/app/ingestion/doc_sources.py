@@ -135,7 +135,8 @@ from package.module import Class
 
 ## Overview
 
-The `collections` module provides specialized container datatypes as alternatives to Python's general-purpose built-in containers.
+The `collections` module provides specialized container datatypes as 
+alternatives to Python's general-purpose built-in containers.
 
 ## namedtuple
 
@@ -253,7 +254,8 @@ print(chain['b'])  # 2 (from first dict)
 
 ## Overview
 
-The `asyncio` module provides infrastructure for writing concurrent code using the async/await syntax.
+The `asyncio` module provides infrastructure for writing concurrent code 
+using the async/await syntax.
 
 ## Basic Concepts
 
@@ -415,7 +417,8 @@ Docker is a platform for developing, shipping, and running applications in conta
 
 ## What is a Container?
 
-A container is a lightweight, standalone, executable package that includes everything needed to run a piece of software:
+A container is a lightweight, standalone, executable package that includes 
+everything needed to run a piece of software:
 
 - Code
 - Runtime
@@ -784,13 +787,16 @@ def create_sample_kubernetes_probes_docs(output_dir: Path) -> None:
 
 ## Overview
 
-Kubernetes provides three types of health probes to ensure your applications are running correctly and can handle traffic. These probes are essential for maintaining application availability and reliability in a containerized environment.
+Kubernetes provides three types of health probes to ensure your applications are 
+running correctly and can handle traffic. These probes are essential for 
+maintaining application availability and reliability in a containerized environment.
 
 ## Liveness Probes
 
 ### What is a Liveness Probe?
 
-A **liveness probe** determines if a container is running properly. If the liveness probe fails, Kubernetes kills the container and restarts it according to the pod's restart policy.
+A **liveness probe** determines if a container is running properly. If the liveness probe fails,
+Kubernetes kills the container and restarts it according to the pod's restart policy.
 
 ### When to Use Liveness Probes
 
@@ -825,7 +831,8 @@ spec:
 - **initialDelaySeconds**: Number of seconds after container starts before probe begins (default: 0)
 - **periodSeconds**: How often to perform the probe (default: 10)
 - **timeoutSeconds**: Seconds after which probe times out (default: 1)
-- **successThreshold**: Minimum consecutive successes for probe to be considered successful (default: 1)
+- **successThreshold**: Minimum consecutive successes for probe to be 
+considered successful (default: 1)
 - **failureThreshold**: Number of consecutive failures before giving up and restarting (default: 3)
 
 ### Liveness Probe Types
@@ -880,7 +887,9 @@ Returns success if exit code is 0.
 
 ### What is a Readiness Probe?
 
-A **readiness probe** determines if a container is ready to accept traffic. If the readiness probe fails, Kubernetes removes the pod's IP address from the endpoints of all Services matching the pod.
+A **readiness probe** determines if a container is ready to accept traffic. 
+If the readiness probe fails, Kubernetes removes the pod's IP address 
+from the endpoints of all Services matching the pod.
 
 ### When to Use Readiness Probes
 
@@ -957,7 +966,8 @@ readinessProbe:
 
 ### What is a Startup Probe?
 
-A **startup probe** checks if the application within a container has started. It's designed for slow-starting containers.
+A **startup probe** checks if the application within a container has started. 
+It's designed for slow-starting containers.
 
 ### When to Use Startup Probes
 
@@ -1280,7 +1290,8 @@ Events:
   Type     Reason     Age   Message
   ----     ------     ----  -------
   Warning  Unhealthy  2m    Liveness probe failed: HTTP probe failed with statuscode: 500
-  Warning  Unhealthy  1m    Readiness probe failed: Get http://10.1.0.4:8080/ready: dial tcp 10.1.0.4:8080: connect: connection refused
+  Warning  Unhealthy  1m    Readiness probe failed: Get http://10.1.0.4:8080/ready: 
+  dial tcp 10.1.0.4:8080: connect: connection refused
 ```
 
 ## Summary
@@ -1291,7 +1302,8 @@ Events:
 | **Readiness** | Ready for traffic? | Remove from Service | Control traffic routing |
 | **Startup** | Has container started? | Kill after threshold | Protect slow-starting apps |
 
-Choose the right combination of probes based on your application's needs to ensure high availability and reliability in Kubernetes.
+Choose the right combination of probes based on your application's needs to 
+ensure high availability and reliability in Kubernetes.
 """
 
     (output_dir / "kubernetes_probes.md").write_text(k8s_probes)

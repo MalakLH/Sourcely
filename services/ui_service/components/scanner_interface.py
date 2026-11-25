@@ -2,6 +2,7 @@
 
 import asyncio
 
+import httpx
 import streamlit as st
 from streamlit_ace import st_ace
 from utils.api_client import SourcelyAPIClient
@@ -232,7 +233,7 @@ function displayMessage(msg) {
                     duration = scan_result.get("scan_duration_seconds", 0)
                     st.caption(f"Scan completed in {duration:.2f}s")
 
-            except Exception as e:
+            except (httpx.HTTPError, ValueError) as e:
                 st.error(f"❌ Scan failed: {e!s}")
                 st.exception(e)
 

@@ -8,9 +8,9 @@ import logging
 
 # Import Malak's implementations
 from app.schema.search_result import SearchResult
-from app.search.github import GitHubSearchClient
+from app.search.github import GitHubSearchClient, GitHubSearchError
 from app.search.ranking import rank_results
-from app.search.searxng import SearXNGClient
+from app.search.searxng import SearXNGClient, SearXNGError
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -108,7 +108,7 @@ async def search_web(request: SearchRequest) -> SearchResponse:
                 all_results.extend(searxng_results)
                 sources_used.append("searxng")
                 logger.info(f"SearXNG returned {len(searxng_results)} results")
-            except Exception as e:
+            except SearXNGError as e:
                 logger.error(f"SearXNG search failed: {e}")
 
         # Search GitHub
@@ -122,7 +122,7 @@ async def search_web(request: SearchRequest) -> SearchResponse:
                 all_results.extend(github_results)
                 sources_used.append("github")
                 logger.info(f"GitHub returned {len(github_results)} results")
-            except Exception as e:
+            except GitHubSearchError as e:
                 logger.error(f"GitHub search failed: {e}")
 
         # If no results from any source

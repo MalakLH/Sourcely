@@ -67,7 +67,7 @@ async def retrieve_documents(query: RetrievalQuery) -> RetrievalResponse:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Vector store not initialized. Please ingest documents first.",
-            )
+            ) 
 
         # Apply similarity threshold from query or use default
         similarity_threshold = query.similarity_threshold or settings.similarity_threshold
@@ -101,7 +101,7 @@ async def retrieve_documents(query: RetrievalQuery) -> RetrievalResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Retrieval failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/ingest", response_model=IngestionResponse)
@@ -128,7 +128,7 @@ async def ingest_documents(request: IngestionRequest) -> IngestionResponse:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Source path not found: {request.source_path}",
-            )
+            ) 
 
         pipeline = DocumentIngestionPipeline()
 
@@ -154,7 +154,7 @@ async def ingest_documents(request: IngestionRequest) -> IngestionResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Ingestion failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/ingest/k8s", response_model=IngestionResponse)
@@ -198,7 +198,7 @@ async def ingest_kubernetes_docs(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"K8s ingestion failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/stats")
@@ -225,7 +225,7 @@ async def get_stats():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get stats: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/ingest/all", response_model=IngestionResponse)
@@ -297,7 +297,7 @@ async def ingest_all_docs(
                     f"from {response.documents_processed} docs"
                 )
 
-            except Exception as e:
+            except (OSError, RuntimeError, ValueError, ImportError) as e:
                 logger.error(f"Error ingesting {doc_source}: {e}")
                 continue
 
@@ -322,7 +322,7 @@ async def ingest_all_docs(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"All docs ingestion failed: {str(e)}",
-        )
+        ) from e
 
 
 @router.delete("/clear")
@@ -348,4 +348,4 @@ async def clear_vector_store():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to clear vector store: {str(e)}",
-        )
+        ) from e

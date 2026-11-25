@@ -1,3 +1,5 @@
+import sqlite3
+
 import pytest
 
 from app.ledger.models import GENESIS_HASH, ExecutionRecord
@@ -96,7 +98,7 @@ def test_reject_duplicate_execution_id(ledger):
 
     duplicate = replace(second, execution_id=record.execution_id)
 
-    with pytest.raises(Exception):
+    with pytest.raises(sqlite3.IntegrityError):
         ledger.append(duplicate)
 
     assert len(ledger.get_all()) == 1

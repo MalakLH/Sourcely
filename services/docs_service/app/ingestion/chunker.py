@@ -179,7 +179,6 @@ class HeadingAwareChunker:
 
             # If section fits in one chunk
             if token_count <= self.max_chunk_tokens:
-                if token_count >= self.min_chunk_tokens:
                     chunks.append(
                         Chunk(
                             content=full_text,

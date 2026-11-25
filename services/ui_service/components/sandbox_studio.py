@@ -6,6 +6,7 @@ with syntax-highlighted editor, tabbed results, and blockchain ledger verificati
 import asyncio
 import hashlib
 
+import httpx
 import streamlit as st
 from streamlit_ace import st_ace
 
@@ -110,7 +111,7 @@ print(user)
                 scan_response = asyncio.run(api_client.scan_code(code, language))
                 st.session_state.scan_results = scan_response
                 st.success("Security scan completed")
-            except Exception as e:
+            except (httpx.HTTPError, ValueError) as e:
                 st.error(f"Scan failed: {e!s}")
 
     # Handle execute button
@@ -122,7 +123,7 @@ print(user)
                 )
                 st.session_state.sandbox_results = sandbox_response
                 st.success("Execution completed")
-            except Exception as e:
+            except (httpx.HTTPError, ValueError) as e:
                 st.error(f"Execution failed: {e!s}")
 
     # Results panel with tabs

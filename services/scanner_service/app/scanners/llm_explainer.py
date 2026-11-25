@@ -143,8 +143,8 @@ Response:"""
     def _fallback_explanation(self, finding: ScanFinding) -> ExplanationResponse:
         """Provide a basic fallback explanation when LLM fails."""
         explanation = (
-            f"A {finding.severity.value} severity security issue was detected by {finding.scanner}. "
-            f"{finding.description}"
+            f"A {finding.severity.value} severity security issue was detected  "
+            f"by {finding.scanner}. {finding.description}"
         )
 
         remediation = (

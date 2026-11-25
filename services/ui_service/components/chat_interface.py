@@ -2,6 +2,7 @@
 
 import asyncio
 
+import httpx
 import streamlit as st
 from utils.api_client import SourcelyAPIClient
 
@@ -114,8 +115,8 @@ def render_chat_interface(api_client: SourcelyAPIClient):
                     {"role": "assistant", "content": answer, "metadata": metadata}
                 )
 
-            except Exception as e:
-                error_msg = f"❌ Error: {e!s}"
+            except (httpx.HTTPError, ValueError) as e:
+                error_msg = f"Error: {e!s}"
                 st.error(error_msg)
                 st.session_state.messages.append(
                     {"role": "assistant", "content": error_msg}

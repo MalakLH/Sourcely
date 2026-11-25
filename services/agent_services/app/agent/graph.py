@@ -47,8 +47,8 @@ def docs_node(state: AgentState) -> dict:
 
         if confidence_score < DOCS_CONFIDENCE_THRESHOLD:
             logger.info(
-                f"Docs confidence {confidence_score:.2f} below threshold {DOCS_CONFIDENCE_THRESHOLD} "
-                f"- triggering web fallback"
+                f"Docs confidence {confidence_score:.2f} below threshold "
+                f"{DOCS_CONFIDENCE_THRESHOLD} - triggering web fallback"
             )
             should_fallback = True
 

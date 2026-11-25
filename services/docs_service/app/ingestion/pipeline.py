@@ -218,27 +218,38 @@ def create_sample_k8s_docs() -> None:
 
 Pods are the smallest deployable units of computing that you can create and manage in Kubernetes.
 
-A Pod is a group of one or more containers, with shared storage and network resources, and a specification for how to run the containers.
+A Pod is a group of one or more containers, with shared storage and network resources, 
+and a specification for how to run the containers.
 
 ## Pod Lifecycle
 
-Pods follow a defined lifecycle, starting in the Pending phase, moving through Running if at least one of its primary containers starts OK, and then through either the Succeeded or Failed phases depending on whether any container in the Pod terminated in failure.
+Pods follow a defined lifecycle, starting in the Pending phase, moving through Running 
+if at least one of its primary containers starts OK, and then through either the 
+Succeeded or Failed phases depending on whether any container in the Pod terminated in failure.
 
 ### Pod Phase
 
-The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle. Here are the possible values for phase:
+The phase of a Pod is a simple, high-level summary of where the Pod is in its lifecycle. 
+Here are the possible values for phase:
 
-- **Pending**: The Pod has been accepted by the Kubernetes cluster, but one or more of the containers has not been set up and made ready to run.
-- **Running**: The Pod has been bound to a node, and all of the containers have been created. At least one container is still running, or is in the process of starting or restarting.
-- **Succeeded**: All containers in the Pod have terminated in success, and will not be restarted.
-- **Failed**: All containers in the Pod have terminated, and at least one container has terminated in failure.
+- **Pending**: The Pod has been accepted by the Kubernetes cluster, but one or more 
+of the containers has not been set up and made ready to run.
+- **Running**: The Pod has been bound to a node, and all of the containers have 
+been created. At least one container is still running, or is in the process 
+of starting or restarting.
+- **Succeeded**: All containers in the Pod have terminated in success, 
+and will not be restarted.
+- **Failed**: All containers in the Pod have terminated, and at least one container 
+has terminated in failure.
 - **Unknown**: For some reason the state of the Pod could not be obtained.
 
 ## Pod Templates
 
-Pod templates are specifications for creating Pods, and are included in workload resources such as Deployments, Jobs, and DaemonSets.
+Pod templates are specifications for creating Pods, and are included in workload resources 
+such as Deployments, Jobs, and DaemonSets.
 
-Each controller for a workload resource uses the Pod template inside the workload object to make actual Pods.
+Each controller for a workload resource uses the Pod template inside the workload object 
+to make actual Pods.
 """
 
     pod_doc_path = sample_docs_path / "pods.md"
@@ -252,7 +263,9 @@ Each controller for a workload resource uses the Pod template inside the workloa
 
 An abstract way to expose an application running on a set of Pods as a network service.
 
-With Kubernetes you don't need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them.
+With Kubernetes you don't need to modify your application to use an unfamiliar 
+service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single 
+DNS name for a set of Pods, and can load-balance across them.
 
 ## Service Types
 
@@ -260,19 +273,24 @@ Kubernetes ServiceTypes allow you to specify what kind of Service you want.
 
 ### ClusterIP
 
-Exposes the Service on a cluster-internal IP. Choosing this value makes the Service only reachable from within the cluster. This is the default ServiceType.
+Exposes the Service on a cluster-internal IP. Choosing this value makes the 
+Service only reachable from within the cluster. This is the default ServiceType.
 
 ### NodePort
 
-Exposes the Service on each Node's IP at a static port (the NodePort). A ClusterIP Service, to which the NodePort Service routes, is automatically created.
+Exposes the Service on each Node's IP at a static port (the NodePort). 
+A ClusterIP Service, to which the NodePort Service routes, is automatically created.
 
 ### LoadBalancer
 
-Exposes the Service externally using a cloud provider's load balancer. NodePort and ClusterIP Services, to which the external load balancer routes, are automatically created.
+Exposes the Service externally using a cloud provider's load balancer. 
+NodePort and ClusterIP Services, to which the external load balancer routes, 
+are automatically created.
 
 ### ExternalName
 
-Maps the Service to the contents of the externalName field (e.g. foo.bar.example.com), by returning a CNAME record with its value.
+Maps the Service to the contents of the externalName field (e.g. foo.bar.example.com), 
+by returning a CNAME record with its value.
 
 ## Service Discovery
 
@@ -290,7 +308,8 @@ Kubernetes supports 2 primary modes of finding a Service - environment variables
 
 A Deployment provides declarative updates for Pods and ReplicaSets.
 
-You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate.
+You describe a desired state in a Deployment, and the Deployment 
+Controller changes the actual state to the desired state at a controlled rate.
 
 ## Use Cases
 
@@ -298,7 +317,8 @@ The following are typical use cases for Deployments:
 
 - **Create a Deployment** to rollout a ReplicaSet. The ReplicaSet creates Pods in the background.
 - **Declare the new state of the Pods** by updating the PodTemplateSpec of the Deployment.
-- **Rollback to an earlier Deployment revision** if the current state of the Deployment is not stable.
+- **Rollback to an earlier Deployment revision** if the current state of the Deployment 
+is not stable.
 - **Scale up the Deployment** to facilitate more load.
 - **Pause the Deployment** to apply multiple fixes to its PodTemplateSpec.
 
@@ -306,11 +326,14 @@ The following are typical use cases for Deployments:
 
 The following is an example of a Deployment. It creates a ReplicaSet to bring up three nginx Pods.
 
-Deployments can be created using kubectl commands or YAML manifests. The manifest approach is recommended for production use.
+Deployments can be created using kubectl commands or YAML manifests. 
+The manifest approach is recommended for production use.
 
 ## Updating a Deployment
 
-A Deployment's rollout is triggered if and only if the Deployment's Pod template (that is, .spec.template) is changed. Other updates, such as scaling the Deployment, do not trigger a rollout.
+A Deployment's rollout is triggered if and only if the Deployment's Pod 
+template (that is, .spec.template) is changed. Other updates, such as 
+scaling the Deployment, do not trigger a rollout.
 """
 
     deployment_doc_path = sample_docs_path / "deployments.md"

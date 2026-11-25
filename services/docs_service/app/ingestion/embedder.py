@@ -64,23 +64,20 @@ class VectorStore:
 
     def create_table(self, overwrite: bool = False) -> None:
         """Create the LanceDB table."""
-        try:
-            if overwrite and self.table_name in self.db.table_names():
-                self.db.drop_table(self.table_name)
-                logger.info(f"Dropped existing table: {self.table_name}")
+        if overwrite and self.table_name in self.db.table_names():
+            self.db.drop_table(self.table_name)
+            logger.info(f"Dropped existing table: {self.table_name}")
 
-            # Create empty table with schema
-            empty_data = []
-            self.db.create_table(
-                self.table_name,
-                data=empty_data,
-                schema=self.get_schema(),
-                mode="create" if not overwrite else "overwrite",
-            )
-            logger.info(f"Created table: {self.table_name}")
-        except Exception as e:
-            logger.warning(f"Table creation note: {e}")
-
+        # Create empty table with schema
+        empty_data = []
+        self.db.create_table(
+            self.table_name,
+            data=empty_data,
+            schema=self.get_schema(),
+            mode="create" if not overwrite else "overwrite",
+        )
+        logger.info(f"Created table: {self.table_name}")
+        
     def table_exists(self) -> bool:
         """Check if the table exists."""
         return self.table_name in self.db.table_names()

@@ -191,7 +191,7 @@ def main():
             print("=" * 60)
             return 1
 
-    except Exception as e:
+    except (OSError, yaml.YAMLError) as e:
         print(f"\n✗ Validation error: {e}")
         return 1
 

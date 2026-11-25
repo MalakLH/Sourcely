@@ -4,6 +4,7 @@ Agent Workspace - Clean chat interface with tool badges and confidence pills
 
 import asyncio
 
+import httpx
 import streamlit as st
 
 
@@ -154,8 +155,7 @@ def render_agent_workspace(api_client):
             st.markdown(query)
 
         # Call agent API
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
+        with st.chat_message("assistant"), st.spinner("Thinking..."):
                 try:
                     response = asyncio.run(api_client.query_agent(query))
 
@@ -255,7 +255,7 @@ def render_agent_workspace(api_client):
                         }
                     )
 
-                except Exception as e:
+                except (httpx.HTTPError, ValueError) as e:
                     error_msg = f"Failed to get response from agent: {e!s}"
                     st.error(error_msg)
                     st.session_state.messages.append(

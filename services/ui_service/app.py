@@ -610,7 +610,7 @@ class SourcelyAPIClient:
                 response = await client.post(f"{self.base_url}/api/query", json=payload)
                 response.raise_for_status()
                 return response.json()
-        except Exception as e:
+        except (httpx.HTTPError, ValueError) as e:
             return {
                 "status": "error",
                 "answer": f"Error: {e!s}",

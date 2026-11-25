@@ -116,21 +116,21 @@ class SourcelyAPIClient:
             try:
                 response = await client.get(f"{self.agent_url}/health")
                 results["agent"] = response.status_code == 200
-            except Exception:
+            except httpx.HTTPError:
                 results["agent"] = False
 
             # Check scanner service
             try:
                 response = await client.get(f"{self.scanner_url}/health")
                 results["scanner"] = response.status_code == 200
-            except Exception:
+            except httpx.HTTPError:
                 results["scanner"] = False
 
             # Check docs service
             try:
                 response = await client.get(f"{self.docs_url}/health")
                 results["docs"] = response.status_code == 200
-            except Exception:
+            except httpx.HTTPError:
                 results["docs"] = False
 
             # Webguide and Sandbox are internal, mark as unknown for now

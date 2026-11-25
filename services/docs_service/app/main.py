@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,6 +8,7 @@ from app.api import routes
 from app.core.config import settings
 from app.ingestion.embedder import initialize_embedding_model
 
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

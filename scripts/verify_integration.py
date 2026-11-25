@@ -34,7 +34,7 @@ async def check_service_health(name: str, url: str) -> bool:
                     f"{Colors.RED}✗{Colors.END} {name} returned {response.status_code}"
                 )
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} {name} is unreachable: {e}")
         return False
 
@@ -60,7 +60,7 @@ async def test_docs_ingestion(docs_url: str) -> bool:
                     f"{Colors.RED}✗{Colors.END} Ingestion failed: {response.status_code}"
                 )
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} Ingestion error: {e}")
         return False
 
@@ -88,7 +88,7 @@ async def test_docs_retrieval(docs_url: str) -> bool:
                     f"{Colors.RED}✗{Colors.END} Retrieval failed: {response.status_code}"
                 )
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} Retrieval error: {e}")
         return False
 
@@ -116,7 +116,7 @@ async def test_web_search(webguide_url: str) -> bool:
                     f"{Colors.RED}✗{Colors.END} Search failed: {response.status_code}"
                 )
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} Search error: {e}")
         return False
 
@@ -153,7 +153,7 @@ eval(user_input)
             else:
                 print(f"{Colors.RED}✗{Colors.END} Scan failed: {response.status_code}")
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} Scan error: {e}")
         return False
 
@@ -179,7 +179,7 @@ async def test_agent_query(agent_url: str) -> bool:
             else:
                 print(f"{Colors.RED}✗{Colors.END} Query failed: {response.status_code}")
                 return False
-    except Exception as e:
+    except httpx.HTTPError as e:
         print(f"{Colors.RED}✗{Colors.END} Query error: {e}")
         return False
 
@@ -216,7 +216,7 @@ async def main():
                             f"{Colors.RED}✗{Colors.END} {name} returned {response.status_code}"
                         )
                         health_results[name] = False
-            except Exception:
+            except httpx.HTTPError:
                 print(f"{Colors.RED}✗{Colors.END} {name} is unreachable")
                 health_results[name] = False
         else:

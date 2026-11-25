@@ -48,7 +48,7 @@ class DocsEvaluator:
             )
             response.raise_for_status()
             return response.json()
-        except Exception as e:
+        except (httpx.HTTPError, json.JSONDecodeError) as e:
             print(f"Error retrieving for query '{query}': {e}")
             return None
 
@@ -189,8 +189,9 @@ class DocsEvaluator:
             EvalMetrics with overall results
         """
         # Load dataset
-        with open(dataset_path) as f:
-            dataset = json.load(f)
+        dataset = await asyncio.to_thread(
+            lambda: json.loads(dataset_path.read_text(encoding="utf-8"))
+        )
 
         test_cases = dataset["test_cases"]
         print(f"\nRunning evaluation on {len(test_cases)} test cases...\n")
@@ -340,7 +341,7 @@ async def main():
             response = await client.get(f"{docs_service_url}/health")
             response.raise_for_status()
             print(f"✓ Connected to docs-service at {docs_service_url}")
-    except Exception as e:
+    except (httpx.HTTPError, TimeoutError) as e:
         print(f"✗ Cannot connect to docs-service at {docs_service_url}")
         print(f"  Error: {e}")
         print("\nPlease ensure docs-service is running:")
@@ -356,21 +357,22 @@ async def main():
 
         # Save results to file
         results_path = Path(__file__).parent / "eval_results.json"
-        with open(results_path, "w") as f:
-            json.dump(
-                {
-                    "total_queries": metrics.total_queries,
-                    "successful_queries": metrics.successful_queries,
-                    "failed_queries": metrics.failed_queries,
-                    "hit_rate": metrics.hit_rate,
-                    "avg_similarity_score": metrics.avg_similarity_score,
-                    "avg_retrieved_count": metrics.avg_retrieved_count,
-                    "confidence_distribution": metrics.confidence_distribution,
-                    "category_performance": metrics.category_performance,
-                },
-                f,
-                indent=2,
-            )
+        results_data = {
+            "total_queries": metrics.total_queries,
+            "successful_queries": metrics.successful_queries,
+            "failed_queries": metrics.failed_queries,
+            "hit_rate": metrics.hit_rate,
+            "avg_similarity_score": metrics.avg_similarity_score,
+            "avg_retrieved_count": metrics.avg_retrieved_count,
+            "confidence_distribution": metrics.confidence_distribution,
+            "category_performance": metrics.category_performance,
+        }
+
+        await asyncio.to_thread(
+            results_path.write_text,
+            json.dumps(results_data, indent=2),
+            encoding="utf-8",
+        )
         print(f"Results saved to: {results_path}")
 
     finally:

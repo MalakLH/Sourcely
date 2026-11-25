@@ -129,7 +129,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
             return ToolResult(
                 status=ToolStatus.ERROR,
                 tool=ToolName.WEB,
-                content="Failed to connect to web guide service. Please ensure webguide-service is running.",
+                content="Failed to connect to web guide service.",
                 sources=[],
             )
 
@@ -146,7 +146,7 @@ async def run_web_tool(request: ToolRequest) -> ToolResult:
             sources=formatted_sources,
         )
 
-    except Exception as e:
+    except (httpx.HTTPError, ValueError, TypeError, KeyError) as e:
         logger.error(f"Error in web_tool: {e}")
         return ToolResult(
             status=ToolStatus.ERROR,

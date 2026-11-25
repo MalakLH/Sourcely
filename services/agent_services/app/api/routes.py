@@ -146,7 +146,7 @@ async def query_agent(request: QueryRequest) -> QueryResponse:
                 "message": str(e),
                 "execution_time_ms": round(execution_time_ms, 2),
             },
-        )
+        ) from e
 
 
 @router.get("/health")

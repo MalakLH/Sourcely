@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: sourcely-docs
+Version: 0.1.0
+Summary: Sourcely Docs Expert RAG System
+Requires-Python: >=3.11
+Requires-Dist: fastapi
+Requires-Dist: uvicorn[standard]
+Requires-Dist: lancedb>=0.3.0
+Requires-Dist: sentence-transformers>=2.2.0
+Requires-Dist: pydantic
+Requires-Dist: pydantic-settings
+Requires-Dist: httpx
+Requires-Dist: beautifulsoup4
+Requires-Dist: lxml
+Requires-Dist: markdown
+Requires-Dist: tiktoken
+Requires-Dist: numpy
+Requires-Dist: pyarrow
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: httpx; extra == "dev"
+Requires-Dist: ruff; extra == "dev"

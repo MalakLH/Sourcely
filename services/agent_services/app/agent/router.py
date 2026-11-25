@@ -1,7 +1,8 @@
 import logging
 
+from langchain_core.exceptions import LangChainException
 from langchain_ollama import ChatOllama
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from app.core.config import settings
 from app.tools.base import ToolName
@@ -53,15 +54,22 @@ def route_request_with_llm(query: str, has_code: bool = False) -> tuple[ToolName
         llm_with_structure = llm.with_structured_output(IntentClassification)
 
         # Create classification prompt
-        prompt = f"""You are an intelligent routing agent. Analyze the user's query and classify their intent into one of these tools:
+        prompt = f"""You are an intelligent routing agent. Analyze the user's query and classify
+          their intent into one of these tools:
 
-1. **docs_search**: For questions about documentation, APIs, concepts, "how does X work", configuration, tutorials already in our knowledge base (Kubernetes, Python, Docker, FastAPI, LangChain).
+1. **docs_search**: For questions about documentation, APIs, concepts, 
+"how does X work", configuration, tutorials already in our knowledge base 
+(Kubernetes, Python, Docker, FastAPI, LangChain).
 
-2. **web_guide**: For queries requiring current information, finding external resources, GitHub repositories, latest tutorials, blog posts, online articles, or anything NOT in our local docs.
+2. **web_guide**: For queries requiring current information, 
+finding external resources, GitHub repositories, latest tutorials, 
+blog posts, online articles, or anything NOT in our local docs.
 
-3. **sandbox_run**: For executing code, testing code snippets, running Python scripts, debugging runtime behavior.
+3. **sandbox_run**: For executing code, testing code snippets, 
+running Python scripts, debugging runtime behavior.
 
-4. **code_scan**: For security analysis, vulnerability scanning, code review, checking for bugs, analyzing code quality.
+4. **code_scan**: For security analysis, vulnerability scanning, 
+code review, checking for bugs, analyzing code quality.
 
 **User Query:** {query}
 
@@ -89,7 +97,7 @@ Classify the intent and provide your confidence (0.0-1.0).
 
         return selected_tool, confidence
 
-    except Exception as e:
+    except (LangChainException, ValidationError, OSError, TimeoutError) as e:
         logger.warning(f"LLM routing failed, using keyword fallback: {e}")
         # Fallback to deterministic keyword matching
         return route_request_keyword_fallback(query, has_code)

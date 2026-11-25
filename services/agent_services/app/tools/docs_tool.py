@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 import httpx
+from langchain_core.exceptions import LangChainException
 from langchain_ollama import ChatOllama
 
 from app.core.config import settings
@@ -81,11 +82,15 @@ def generate_grounded_answer(query: str, retrieval_response: dict) -> tuple[str,
     context = "\n---\n".join(context_parts)
 
     # Create prompt for LLM
-    prompt = f"""You are a helpful documentation assistant. Answer the user's question based STRICTLY on the provided documentation context. Do not add information beyond what's in the context.
+    prompt = f"""You are a helpful documentation assistant. 
+    Answer the user's question based STRICTLY on the provided documentation context. 
+    Do not add information beyond what's in the context.
 
-If the context doesn't contain enough information to answer the question, say so clearly.
+If the context doesn't contain enough information to answer the question, 
+say so clearly.
 
-Include numbered citations [1], [2], etc. in your answer to reference specific documentation sections.
+Include numbered citations [1], [2], etc. in your answer to reference 
+specific documentation sections.
 
 User Question: {query}
 
@@ -122,7 +127,7 @@ Answer:"""
 
         return answer_with_metadata, sources
 
-    except Exception as e:
+    except (LangChainException, OSError, TimeoutError, ValueError) as e:
         logger.error(f"Error generating LLM answer: {e}")
         # Fallback to simple concatenation
         return format_cited_answer_fallback(retrieval_response)
@@ -204,7 +209,7 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
             return ToolResult(
                 status=ToolStatus.ERROR,
                 tool=ToolName.DOCS,
-                content="Failed to connect to documentation service. Please ensure docs-service is running.",
+                content="Failed to connect to documentation service.",
                 sources=[],
             )
 
@@ -221,7 +226,7 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
             sources=formatted_sources,
         )
 
-    except Exception as e:
+    except (httpx.HTTPError, LangChainException, OSError, RuntimeError, ValueError) as e:
         logger.error(f"Error in docs_tool: {e}")
         return ToolResult(
             status=ToolStatus.ERROR,
