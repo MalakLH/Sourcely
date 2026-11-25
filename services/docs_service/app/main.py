@@ -10,6 +10,7 @@ from app.ingestion.embedder import initialize_embedding_model
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize resources on startup and cleanup on shutdown."""

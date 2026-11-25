@@ -67,7 +67,7 @@ async def retrieve_documents(query: RetrievalQuery) -> RetrievalResponse:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Vector store not initialized. Please ingest documents first.",
-            ) 
+            )
 
         # Apply similarity threshold from query or use default
         similarity_threshold = query.similarity_threshold or settings.similarity_threshold
@@ -128,7 +128,7 @@ async def ingest_documents(request: IngestionRequest) -> IngestionResponse:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Source path not found: {request.source_path}",
-            ) 
+            )
 
         pipeline = DocumentIngestionPipeline()
 

@@ -77,7 +77,7 @@ class VectorStore:
             mode="create" if not overwrite else "overwrite",
         )
         logger.info(f"Created table: {self.table_name}")
-        
+
     def table_exists(self) -> bool:
         """Check if the table exists."""
         return self.table_name in self.db.table_names()

@@ -60,7 +60,6 @@ class TestAdversarialIsolation:
         # Test code that would attempt to write to root
         # This should fail with permission denied
 
-    
     def test_path_traversal_blocked(self):
         """Verify path traversal attempts are blocked by the read-only filesystem."""
         config = get_container_security_config()
@@ -99,13 +98,10 @@ class TestAdversarialIsolation:
                     f"status={result.status}, stderr={result.stderr}"
                 )
 
-                assert "BLOCKED:" in result.stdout, (
-                    f"Unexpected write success for path: {path}"
-                )
+                assert "BLOCKED:" in result.stdout, f"Unexpected write success for path: {path}"
 
         finally:
             manager.close()
-
 
     def test_network_isolation_enforcement(self):
         """Verify network access is completely disabled."""

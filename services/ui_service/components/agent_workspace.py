@@ -156,110 +156,110 @@ def render_agent_workspace(api_client):
 
         # Call agent API
         with st.chat_message("assistant"), st.spinner("Thinking..."):
-                try:
-                    response = asyncio.run(api_client.query_agent(query))
+            try:
+                response = asyncio.run(api_client.query_agent(query))
 
-                    answer = response.get("answer", "No response received.")
-                    tool_used = response.get("tool_used", "unknown")
-                    confidence = response.get("confidence")
-                    citations = response.get("citations", [])
-                    sources = response.get("sources", [])
-                    execution_time_ms = response.get("execution_time_ms", 0)
+                answer = response.get("answer", "No response received.")
+                tool_used = response.get("tool_used", "unknown")
+                confidence = response.get("confidence")
+                citations = response.get("citations", [])
+                sources = response.get("sources", [])
+                execution_time_ms = response.get("execution_time_ms", 0)
 
-                    # Display answer
-                    st.markdown(answer)
+                # Display answer
+                st.markdown(answer)
 
-                    # Tool badge and confidence
-                    tool_class = (
-                        "docs"
-                        if tool_used == "docs"
-                        else ("web" if tool_used == "web" else "sandbox")
+                # Tool badge and confidence
+                tool_class = (
+                    "docs"
+                    if tool_used == "docs"
+                    else ("web" if tool_used == "web" else "sandbox")
+                )
+                tool_display = {
+                    "docs": "DOCS EXPERT",
+                    "web": "WEB GUIDE",
+                    "sandbox": "SANDBOX",
+                    "unknown": "AGENT",
+                }.get(tool_used, "AGENT")
+
+                confidence_class = "low"
+                if confidence:
+                    if confidence == "high" or (
+                        isinstance(confidence, (int, float)) and confidence >= 0.7
+                    ):
+                        confidence_class = "high"
+                    elif confidence == "medium" or (
+                        isinstance(confidence, (int, float)) and confidence >= 0.5
+                    ):
+                        confidence_class = "medium"
+                    else:
+                        confidence_class = "low"
+
+                badge_html = (
+                    f'<span class="tool-badge {tool_class}">{tool_display}</span>'
+                )
+
+                if confidence:
+                    conf_display = (
+                        confidence
+                        if isinstance(confidence, str)
+                        else f"{float(confidence):.2f}"
                     )
-                    tool_display = {
-                        "docs": "DOCS EXPERT",
-                        "web": "WEB GUIDE",
-                        "sandbox": "SANDBOX",
-                        "unknown": "AGENT",
-                    }.get(tool_used, "AGENT")
+                    badge_html += f'<span class="confidence-pill {confidence_class}">{conf_display}</span>'
 
-                    confidence_class = "low"
-                    if confidence:
-                        if confidence == "high" or (
-                            isinstance(confidence, (int, float)) and confidence >= 0.7
-                        ):
-                            confidence_class = "high"
-                        elif confidence == "medium" or (
-                            isinstance(confidence, (int, float)) and confidence >= 0.5
-                        ):
-                            confidence_class = "medium"
-                        else:
-                            confidence_class = "low"
+                badge_html += f'<span style="color: #6B7280; font-size: 0.75rem; margin-left: 0.5rem;">{execution_time_ms:.0f}ms</span>'
 
-                    badge_html = (
-                        f'<span class="tool-badge {tool_class}">{tool_display}</span>'
-                    )
+                st.markdown(badge_html, unsafe_allow_html=True)
 
-                    if confidence:
-                        conf_display = (
-                            confidence
-                            if isinstance(confidence, str)
-                            else f"{float(confidence):.2f}"
-                        )
-                        badge_html += f'<span class="confidence-pill {confidence_class}">{conf_display}</span>'
+                # Citations
+                if citations or sources:
+                    with st.expander("View Sources", expanded=False):
+                        if citations:
+                            for idx, citation in enumerate(citations, 1):
+                                st.markdown(
+                                    f'<div class="citation-card">'
+                                    f'<div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 0.25rem;">[{idx}]</div>'
+                                    f'<a href="{citation}" target="_blank" style="color: #6366F1; text-decoration: none; font-size: 0.875rem;">{citation}</a>'
+                                    f"</div>",
+                                    unsafe_allow_html=True,
+                                )
 
-                    badge_html += f'<span style="color: #6B7280; font-size: 0.75rem; margin-left: 0.5rem;">{execution_time_ms:.0f}ms</span>'
+                        if sources and isinstance(sources, list):
+                            for source in sources:
+                                if isinstance(source, dict):
+                                    title = source.get("title", "Source")
+                                    url = source.get("url", "")
+                                    snippet = source.get("snippet", "")
 
-                    st.markdown(badge_html, unsafe_allow_html=True)
-
-                    # Citations
-                    if citations or sources:
-                        with st.expander("View Sources", expanded=False):
-                            if citations:
-                                for idx, citation in enumerate(citations, 1):
                                     st.markdown(
                                         f'<div class="citation-card">'
-                                        f'<div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 0.25rem;">[{idx}]</div>'
-                                        f'<a href="{citation}" target="_blank" style="color: #6366F1; text-decoration: none; font-size: 0.875rem;">{citation}</a>'
+                                        f'<div style="font-weight: 500; color: #F3F4F6; margin-bottom: 0.25rem;">{title}</div>'
+                                        f'<div style="font-size: 0.8rem; color: #9CA3AF; margin-bottom: 0.5rem;">{snippet[:150]}...</div>'
+                                        f'<a href="{url}" target="_blank" style="color: #6366F1; text-decoration: none; font-size: 0.75rem;">{url}</a>'
                                         f"</div>",
                                         unsafe_allow_html=True,
                                     )
 
-                            if sources and isinstance(sources, list):
-                                for source in sources:
-                                    if isinstance(source, dict):
-                                        title = source.get("title", "Source")
-                                        url = source.get("url", "")
-                                        snippet = source.get("snippet", "")
+                # Save assistant message with metadata
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer,
+                        "metadata": {
+                            "tool_used": tool_used,
+                            "confidence": confidence,
+                            "citations": citations,
+                            "sources": sources,
+                            "execution_time_ms": execution_time_ms,
+                        },
+                    }
+                )
 
-                                        st.markdown(
-                                            f'<div class="citation-card">'
-                                            f'<div style="font-weight: 500; color: #F3F4F6; margin-bottom: 0.25rem;">{title}</div>'
-                                            f'<div style="font-size: 0.8rem; color: #9CA3AF; margin-bottom: 0.5rem;">{snippet[:150]}...</div>'
-                                            f'<a href="{url}" target="_blank" style="color: #6366F1; text-decoration: none; font-size: 0.75rem;">{url}</a>'
-                                            f"</div>",
-                                            unsafe_allow_html=True,
-                                        )
-
-                    # Save assistant message with metadata
-                    st.session_state.messages.append(
-                        {
-                            "role": "assistant",
-                            "content": answer,
-                            "metadata": {
-                                "tool_used": tool_used,
-                                "confidence": confidence,
-                                "citations": citations,
-                                "sources": sources,
-                                "execution_time_ms": execution_time_ms,
-                            },
-                        }
-                    )
-
-                except (httpx.HTTPError, ValueError) as e:
-                    error_msg = f"Failed to get response from agent: {e!s}"
-                    st.error(error_msg)
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": error_msg, "metadata": {}}
-                    )
+            except (httpx.HTTPError, ValueError) as e:
+                error_msg = f"Failed to get response from agent: {e!s}"
+                st.error(error_msg)
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": error_msg, "metadata": {}}
+                )
 
         st.rerun()

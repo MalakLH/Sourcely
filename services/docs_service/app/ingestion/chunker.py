@@ -179,17 +179,17 @@ class HeadingAwareChunker:
 
             # If section fits in one chunk
             if token_count <= self.max_chunk_tokens:
-                    chunks.append(
-                        Chunk(
-                            content=full_text,
-                            heading_path=heading_path,
-                            section_title=title,
-                            chunk_index=chunk_counter,
-                            token_count=token_count,
-                            start_heading_level=level,
-                        )
+                chunks.append(
+                    Chunk(
+                        content=full_text,
+                        heading_path=heading_path,
+                        section_title=title,
+                        chunk_index=chunk_counter,
+                        token_count=token_count,
+                        start_heading_level=level,
                     )
-                    chunk_counter += 1
+                )
+                chunk_counter += 1
             else:
                 # Split large section into multiple chunks with overlap
                 sentences = self._split_into_sentences(full_text)
