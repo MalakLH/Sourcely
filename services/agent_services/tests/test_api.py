@@ -26,7 +26,8 @@ def test_chat():
     data = response.json()
 
     assert data["tool_used"] == "docs"
-    assert "[STUB]" in data["answer"]
+    assert isinstance(data["answer"], str)
+    assert data["answer"].strip() != ""
 
 
 def test_empty_message():

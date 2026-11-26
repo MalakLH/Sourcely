@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen3:4b"
     ollama_temperature: float = 0
 
+    docs_service_url: str = "http://docs-service:8002"
+    webguide_service_url: str = "http://webguide-service:8003"
+    
+
     max_agent_steps: int = 5
 
     model_config = SettingsConfigDict(

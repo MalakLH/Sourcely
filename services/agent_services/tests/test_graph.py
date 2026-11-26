@@ -16,7 +16,8 @@ def test_docs_workflow():
     )
 
     assert result["selected_tool"] == "docs"
-    assert "[STUB]" in result["answer"]
+    assert isinstance(result["answer"], str)
+    assert result["answer"].strip() != ""
 
 
 @pytest.mark.asyncio

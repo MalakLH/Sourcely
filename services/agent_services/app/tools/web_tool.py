@@ -2,11 +2,12 @@ import logging
 
 import httpx
 
+from app.core.config import settings
 from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 logger = logging.getLogger(__name__)
 
-WEBGUIDE_SERVICE_URL = "http://sourcely-webguide:8003"
+WEBGUIDE_SERVICE_URL = settings.webguide_service_url
 
 
 async def search_web_guide(

@@ -10,7 +10,7 @@ from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 logger = logging.getLogger(__name__)
 
-DOCS_SERVICE_URL = "http://sourcely-docs:8002"
+DOCS_SERVICE_URL = settings.docs_service_url
 
 
 async def retrieve_from_docs_service(
@@ -224,6 +224,9 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
             tool=ToolName.DOCS,
             content=content,
             sources=formatted_sources,
+            metadata={
+                "confidence": retrieval_response.get("confidence", "unknown")
+            },
         )
 
     except (httpx.HTTPError, LangChainException, OSError, RuntimeError, ValueError) as e:
