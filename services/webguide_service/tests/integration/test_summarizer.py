@@ -3,6 +3,25 @@ from app.schema.search_result import SearchResult
 from app.search.summarizer import OllamaSummarizer
 
 
+def assert_valid_explanation(summary: str, result_title: str) -> None:
+    assert isinstance(summary, str)
+    assert summary.strip()
+    assert len(summary.split()) <= 25
+
+    invalid_starts = (
+        "the user asks",
+        "the query asks",
+        "the query is",
+        "the user wants",
+        "we are given",
+        "we must",
+        "key points",
+    )
+
+    assert not summary.lower().startswith(invalid_starts)
+    assert result_title.lower() in summary.lower()
+
+
 @pytest.fixture
 def summarizer() -> OllamaSummarizer:
     return OllamaSummarizer(
@@ -36,6 +55,7 @@ async def test_real_fastapi_documentation_summary(summarizer):
     assert isinstance(summary, str)
     assert summary.strip()
     assert len(summary.split()) <= 35
+    assert_valid_explanation(summary, "FastAPI")
 
 
 @pytest.mark.asyncio
@@ -66,6 +86,7 @@ async def test_real_langgraph_repository_summary(summarizer):
     assert isinstance(summary, str)
     assert summary.strip()
     assert len(summary.split()) <= 35
+    assert_valid_explanation(summary, "LangGraph")
 
 
 @pytest.mark.asyncio
@@ -89,6 +110,7 @@ async def test_real_summary_with_missing_snippet(summarizer):
 
     assert isinstance(summary, str)
     assert summary.strip()
+    assert_valid_explanation(summary, "Python Official Documentation")
 
 
 @pytest.mark.asyncio
