@@ -4,9 +4,9 @@ from app.agent.graph import agent_graph
 from app.tools.base import ToolName, ToolRequest, ToolResult, ToolStatus
 
 
-def test_docs_workflow():
-
-    result = agent_graph.invoke(
+@pytest.mark.asyncio
+async def test_docs_workflow():
+    result = await agent_graph.ainvoke(
         {
             "query": "Explain Kubernetes Pods",
             "selected_tool": "",

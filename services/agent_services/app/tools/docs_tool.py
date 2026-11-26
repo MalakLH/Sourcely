@@ -224,9 +224,7 @@ def run_docs_tool(request: ToolRequest) -> ToolResult:
             tool=ToolName.DOCS,
             content=content,
             sources=formatted_sources,
-            metadata={
-                "confidence": retrieval_response.get("confidence", "unknown")
-            },
+            metadata={"confidence": retrieval_response.get("confidence", "unknown")},
         )
 
     except (httpx.HTTPError, LangChainException, OSError, RuntimeError, ValueError) as e:

@@ -13,7 +13,6 @@ class Settings(BaseSettings):
 
     docs_service_url: str = "http://docs-service:8002"
     webguide_service_url: str = "http://webguide-service:8003"
-    
 
     max_agent_steps: int = 5
 
