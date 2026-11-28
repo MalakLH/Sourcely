@@ -2,9 +2,9 @@
 
 <div align="center">
   <img src="services/ui_service/assets/Sourcely.png" alt="Sourcely Logo" width="400"/>
-  
+
   **Local-First AI Developer Agent**
-  
+
   Grounded documentation Q&A • Curated web/GitHub discovery • Isolated code execution with security scanning
 </div>
 
@@ -14,9 +14,9 @@
 
 **Sourcely** is a local-first AI developer agent platform that provides:
 
-- **Grounded Documentation Q&A**: RAG-powered search across Kubernetes, Python, and Docker documentation with accurate citations
-- **Curated Web & GitHub Resource Discovery**: Intelligent search combining SearXNG web search and GitHub API with LLM-powered ranking and summarization
-- **Isolated Code Execution**: Docker-in-Docker sandbox with static security scanning (Bandit + Semgrep) and cryptographic ledger verification
+- **Grounded Documentation Q&A**: RAG-powered search across Kubernetes, Python, and Docker documentation with accurate citations.
+- **Curated Web & GitHub Resource Discovery**: Intelligent search combining SearXNG web search and GitHub API with LLM-powered ranking and summarization.
+- **Isolated Code Execution**: Hardened Docker-based sandbox with static security scanning (Bandit + Semgrep) and cryptographic ledger verification.
 
 Built with LangGraph orchestration, local Ollama LLM inference, and a microservices architecture designed for privacy and control.
 
@@ -30,19 +30,19 @@ graph TD
     Agent --> Docs[Docs Service :8002<br/>LanceDB + RAG]
     Agent --> Web[WebGuide Service :8003<br/>SearXNG + GitHub]
     Agent --> Scanner[Scanner Service :8004<br/>Bandit + Semgrep]
-    Agent --> Sandbox[Sandbox Service :8001<br/>Docker-in-Docker]
+    Agent --> Sandbox[Sandbox Service :8001<br/>Docker-based Isolation]
     Web --> SearXNG[SearXNG :8080]
-    Sandbox --> Ledger[Blockchain Ledger<br/>SQLite]
+    Sandbox --> Ledger[Cryptographic Ledger<br/>SQLite]
     Agent -.-> Ollama[Ollama LLM<br/>qwen3:4b]
 ```
 
 **High-Level Flow:**
 
-1. **User Query** → Streamlit UI sends request to Agent Service
-2. **LangGraph Router** → Analyzes intent and routes to appropriate tool(s)
-3. **Tool Execution** → Docs/Web/Scanner/Sandbox service processes request
-4. **LLM Synthesis** → Ollama generates grounded response with citations
-5. **Response Display** → UI renders answer with tool pills, sources, and metadata
+1. **User Query** → Streamlit UI sends request to Agent Service.
+2. **LangGraph Router** → Analyzes intent and routes to appropriate tool(s).
+3. **Tool Execution** → Docs/Web/Scanner/Sandbox service processes request.
+4. **LLM Synthesis** → Ollama generates grounded response with citations.
+5. **Response Display** → UI renders answer with tool pills, sources, and metadata.
 
 ---
 
@@ -51,16 +51,19 @@ graph TD
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | **Agent Orchestration** | LangGraph + FastAPI | Dynamic tool routing with fallback logic |
-| **Local LLM** | Ollama (qwen3:4b) | Privacy-first inference without API calls |
+| **Local LLM** | Ollama (qwen3:4b) | Privacy-first local inference |
 | **Vector Store** | LanceDB | Persistent embeddings for RAG retrieval |
 | **Embeddings** | sentence-transformers | Local embedding generation |
 | **Web Search** | SearXNG | Privacy-respecting meta-search engine |
 | **GitHub Search** | GitHub REST API | Repository and code discovery |
 | **Security Scanning** | Bandit + Semgrep | AST and SAST vulnerability detection |
-| **Code Execution** | Docker-in-Docker | Isolated sandbox with security hardening |
-| **Audit Trail** | SQLite blockchain | Cryptographic ledger for execution logs |
+| **Code Execution** | Docker SDK | Isolated sandbox with security hardening |
+| **Audit Trail** | SQLite + SHA-256 | Tamper-evident execution ledger |
 | **UI Framework** | Streamlit | Multi-page interface with chat bubbles |
-| **Orchestration** | Docker Compose | Service containerization and networking |
+| **Container Orchestration** | Docker Compose | Local service deployment |
+| **Kubernetes** | k3s + containerd | Lightweight container orchestration |
+| **Ingress Controller** | Traefik | HTTP/HTTPS traffic routing |
+| **Container Registry** | Docker Registry v2 | Local image storage and distribution |
 
 ---
 
@@ -80,10 +83,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 # Windows: Download from https://ollama.com/download
 
-# Pull the Qwen3 4B model
 ollama pull qwen3:4b
-
-# Verify model is available
 ollama list
 ```
 
@@ -99,46 +99,28 @@ cp .env.example .env
 # Generate SearXNG secret key
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 
-# Edit .env and paste the secret into SEARXNG_SECRET field
+# Paste the secret into SEARXNG_SECRET
 nano .env
 ```
+
+Do not commit `.env` or credentials to Git.
 
 ### 3. Start All Services
 
 ```bash
 cd infrastructure/docker
 
-# Build and start all containers
-docker-compose up --build -d
-
-# Verify all 7 services are running
-docker-compose ps
-
-# Expected output:
-# sourcely-ui        Up   0.0.0.0:8501->8501/tcp
-# sourcely-agent     Up   0.0.0.0:8000->8000/tcp
-# sourcely-docs      Up   0.0.0.0:8002->8002/tcp
-# sourcely-webguide  Up   0.0.0.0:8003->8003/tcp
-# sourcely-scanner   Up   0.0.0.0:8004->8004/tcp
-# sourcely-sandbox   Up   8001/tcp
-# sourcely-searxng   Up   0.0.0.0:8080->8080/tcp
+docker compose up --build -d
+docker compose ps
 ```
 
 ### 4. Ingest Documentation
 
 ```bash
-# Trigger documentation ingestion (Kubernetes, Python, Docker)
+# Trigger documentation ingestion
 curl -X POST "http://localhost:8002/ingest/all?force_reindex=true"
 
-# Expected response:
-# {
-#   "status": "success",
-#   "chunks_created": 41,
-#   "documents_processed": 6,
-#   "time_taken": "1.25s"
-# }
-
-# Verify ingestion
+# Verify service health
 curl http://localhost:8002/health
 ```
 
@@ -149,13 +131,188 @@ Open your browser and navigate to:
 **http://localhost:8501**
 
 Try these starter prompts:
+
 - *"How do Kubernetes Liveness Probes work?"*
 - *"Search GitHub repos using LangChain"*
 - *"Execute Python FastAPI example"*
 
 Navigate between tabs:
-- **Agent Workspace**: Chat interface with tool routing
-- **Sandbox Studio**: Code execution with security scanning
+
+- **Agent Workspace**: Chat interface with tool routing.
+- **Sandbox Studio**: Code execution with security scanning.
+
+---
+
+## ☸️ Kubernetes Deployment (k3s)
+
+Sourcely is being extended to support Kubernetes deployment alongside Docker Compose. The cluster infrastructure and local registry are implemented and validated. Application deployment through Helm and ArgoCD is in progress.
+
+### 1. Prerequisites
+
+- Linux or Ubuntu under WSL2 (Windows)
+- Docker Desktop or Docker Engine
+- systemd and iptables
+- Sufficient memory and disk space
+
+For Windows development machines with limited resources, an optional `%USERPROFILE%\.wslconfig` configuration is:
+
+```ini
+[wsl2]
+memory=4GB
+processors=4
+swap=2GB
+```
+
+Apply changes using PowerShell:
+
+```powershell
+wsl --shutdown
+wsl -d Ubuntu
+```
+
+Adjust these limits according to your machine. Avoid running the full Docker Compose stack alongside Kubernetes on resource-constrained machines.
+
+### 2. Install and Verify k3s
+
+Run inside Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install -y curl iptables
+
+# Install k3s
+curl -sfL https://get.k3s.io | sh -
+
+# Verify cluster
+sudo k3s kubectl get nodes
+sudo k3s kubectl get pods -A
+
+# Verify built-in Traefik
+sudo k3s kubectl get svc traefik -n kube-system
+```
+
+k3s includes containerd, CoreDNS, Traefik, Metrics Server, a network policy controller, and the Local Path Provisioner.
+
+The Kubernetes node should be `Ready` and system workloads should be running.
+
+Tested k3s version: `v1.37.2+k3s1`.
+
+### 3. Deploy Local Container Registry
+
+From the repository root:
+
+```bash
+# Create infrastructure namespace
+sudo k3s kubectl apply \
+  -f infrastructure/kubernetes/namespaces/infra.yaml
+
+# Deploy registry, PVC and NodePort service
+sudo k3s kubectl apply \
+  -f infrastructure/kubernetes/registry/registry.yaml
+
+# Verify resources
+sudo k3s kubectl get pods,pvc,svc -n infra
+
+# Verify registry endpoint
+curl http://localhost:32000/v2/
+```
+
+The registry uses persistent storage through the `local-path` storage class and is exposed on NodePort `32000`.
+
+Configure k3s to pull images from the HTTP registry:
+
+```bash
+sudo cp infrastructure/kubernetes/registry/registries.yaml \
+  /etc/rancher/k3s/registries.yaml
+
+sudo systemctl restart k3s
+```
+
+If an existing `registries.yaml` contains other registry settings, merge the configurations instead of overwriting the file.
+
+### 4. Configure Docker Desktop (Windows/WSL2)
+
+Retrieve the WSL IP address from PowerShell:
+
+```powershell
+$WslIp = ((wsl -d Ubuntu hostname -I).Trim() -split '\s+')[0]
+$Registry = "${WslIp}:32000"
+
+curl.exe -i "http://${Registry}/v2/"
+```
+
+In **Docker Desktop → Settings → Docker Engine**, add the registry address to the existing configuration:
+
+```json
+{
+  "insecure-registries": [
+    "<WSL_IP>:32000"
+  ]
+}
+```
+
+Replace `<WSL_IP>` with your actual WSL IP address, preserve existing settings, and select **Apply & Restart**.
+
+Verify the configuration using:
+
+```powershell
+docker info
+```
+
+> The WSL IP may change after a restart. Update the Docker Engine configuration when necessary. Do not commit machine-specific IP addresses to Git.
+
+### 5. Validate Registry Push and Pull
+
+From PowerShell:
+
+```powershell
+docker pull hello-world:latest
+docker tag hello-world:latest "${Registry}/hello-world:test"
+docker push "${Registry}/hello-world:test"
+```
+
+From Ubuntu:
+
+```bash
+# Verify stored image
+curl http://localhost:32000/v2/_catalog
+
+# Pull image using containerd
+sudo k3s crictl pull localhost:32000/hello-world:test
+
+# Execute test container
+sudo k3s kubectl run registry-test \
+  --namespace=infra \
+  --image=localhost:32000/hello-world:test \
+  --image-pull-policy=Always \
+  --restart=Never
+
+# Verify execution
+sudo k3s kubectl get pod registry-test -n infra
+sudo k3s kubectl logs registry-test -n infra
+
+# Clean up
+sudo k3s kubectl delete pod registry-test -n infra
+```
+
+The test pod should reach `Completed` and print `Hello from Docker!`.
+
+Docker Desktop pushes images using the WSL IP address, while k3s pulls them using `localhost:32000`.
+
+**Security note:** The local registry uses HTTP without authentication and is intended for local development only.
+
+### Kubernetes Roadmap
+
+- [x] k3s cluster setup
+- [x] Traefik ingress controller installation
+- [x] Persistent local container registry
+- [x] End-to-end image push and pull validation
+- [ ] Application namespaces, ConfigMaps and Secrets
+- [ ] Service Dockerfiles and Helm charts
+- [ ] Application ingress routing
+- [ ] Kubernetes Jobs for sandbox execution
+- [ ] NetworkPolicy, ResourceQuota and restricted Pod Security
+- [ ] Umbrella Helm chart and ArgoCD GitOps deployment
 
 ---
 
@@ -168,7 +325,7 @@ Navigate between tabs:
 | **Docs Service** | 8002 | RAG with LanceDB vector store | LanceDB, sentence-transformers |
 | **WebGuide Service** | 8003 | SearXNG + GitHub search with ranking | httpx, GitHub API |
 | **Scanner Service** | 8004 | Bandit + Semgrep security analysis | Bandit, Semgrep |
-| **Sandbox Service** | 8001 | Docker-in-Docker isolated execution | Docker SDK, SQLite ledger |
+| **Sandbox Service** | 8001 | Isolated code execution | Docker SDK, SQLite ledger |
 | **SearXNG** | 8080 | Privacy-respecting meta-search engine | Redis, uwsgi |
 
 ---
@@ -177,20 +334,22 @@ Navigate between tabs:
 
 ### Sandbox Isolation
 
-Every code execution runs in a hardened Docker container:
+Every code execution in the Docker-based sandbox runs in a hardened container:
 
 | Security Control | Configuration | Purpose |
 |-----------------|---------------|---------|
-| **User Context** | `nobody:nogroup` (65534:65534) | Non-root execution prevents privilege escalation |
-| **Filesystem** | Read-only root + tmpfs /tmp | Prevents persistent malware installation |
-| **Network** | `network_mode: none` | Blocks data exfiltration and C2 communication |
-| **Capabilities** | All dropped (`--cap-drop=ALL`) | Removes dangerous Linux capabilities |
-| **Resources** | 0.5 CPU, 128MB RAM, 32 PIDs | Prevents resource exhaustion attacks |
-| **Timeout** | 30 seconds max | Prevents infinite loops and DoS |
+| **User Context** | `nobody:nogroup` (65534:65534) | Reduces privilege escalation risk |
+| **Filesystem** | Read-only root + tmpfs /tmp | Restricts filesystem modifications |
+| **Network** | `network_mode: none` | Blocks container network access |
+| **Capabilities** | All dropped (`--cap-drop=ALL`) | Removes unnecessary Linux capabilities |
+| **Resources** | 0.5 CPU, 128 MB RAM, 32 PIDs | Limits resource exhaustion |
+| **Timeout** | 30 seconds max | Limits execution duration |
 
 ### Cryptographic Audit Ledger
 
-Every sandbox execution is recorded in a tamper-evident blockchain ledger:
+Every sandbox execution is recorded in a tamper-evident, hash-chained ledger.
+
+Illustrative record structure:
 
 ```python
 {
@@ -203,35 +362,34 @@ Every sandbox execution is recorded in a tamper-evident blockchain ledger:
 }
 ```
 
-Any tampering breaks the hash chain and is immediately detectable.
+Modifications to existing records can be detected through hash-chain integrity verification.
 
 ---
 
 ## 🧪 Testing
 
-### Run All Tests
+### Run All Service Tests
+
+From the repository root:
 
 ```bash
 # Agent Service
-cd services/agent_services
-pytest tests/ -v
+(cd services/agent_services && pytest tests/ -v)
 
-# Docs Service  
-cd services/docs_service
-pytest tests/ -v
+# Docs Service
+(cd services/docs_service && pytest tests/ -v)
 
 # WebGuide Service
-cd services/webguide_service
-pytest tests/ -v
+(cd services/webguide_service && pytest tests/ -v)
 
-# Scanner Service (22 vulnerable code snippets)
-cd services/scanner_service
-pytest tests/ -v
+# Scanner Service
+(cd services/scanner_service && pytest tests/ -v)
 
-# Sandbox Service (14 adversarial scenarios)
-cd services/sandbox_service
-pytest tests/ -v
+# Sandbox Service
+(cd services/sandbox_service && pytest tests/ -v)
 ```
+
+Integration tests require the corresponding services and dependencies to be running.
 
 ### RAG Evaluation
 
@@ -239,41 +397,47 @@ pytest tests/ -v
 cd evals
 python run_eval.py
 
-# Runs 52 Q&A test cases from golden_dataset.json
-# Outputs: retrieval accuracy, answer quality, citation accuracy
+# Evaluates retrieval accuracy, answer quality and citation accuracy
 ```
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 Sourcely/
 ├── services/
-│   ├── agent_services/       # LangGraph orchestration (8000)
-│   ├── docs_service/          # RAG documentation search (8002)
-│   ├── webguide_service/      # Web + GitHub search (8003)
-│   ├── scanner_service/       # Security scanning (8004)
-│   ├── sandbox_service/       # Isolated execution (8001)
-│   └── ui_service/            # Streamlit UI (8501)
+│   ├── agent_services/        # LangGraph orchestration
+│   ├── docs_service/          # RAG documentation search
+│   ├── webguide_service/      # Web + GitHub search
+│   ├── scanner_service/       # Security scanning
+│   ├── sandbox_service/       # Isolated execution
+│   └── ui_service/            # Streamlit UI
 ├── infrastructure/
-│   └── docker/
-│       ├── docker-compose.yml # Service orchestration
-│       └── searxng/           # SearXNG configuration
+│   ├── docker/
+│   │   ├── docker-compose.yml
+│   │   └── searxng/
+│   └── kubernetes/
+│       ├── namespaces/
+│       │   └── infra.yaml
+│       └── registry/
+│           ├── registry.yaml
+│           └── registries.yaml
 ├── docs/
 │   └── adr/                   # Architecture Decision Records
 ├── evals/
-│   ├── golden_dataset.json    # 52 Q&A test cases
-│   └── run_eval.py            # Evaluation harness
-└── scripts/
-    └── test_tool_calling.py   # Integration test script
+│   ├── golden_dataset.json
+│   └── run_eval.py
+├── scripts/
+│   └── test_tool_calling.py
+└── README.md
 ```
 
 ---
 
 ## 🌐 API Documentation
 
-Once services are running, interactive API docs are available:
+Once the Docker Compose services are running, interactive API docs are available:
 
 - **Agent API**: http://localhost:8000/docs
 - **Docs API**: http://localhost:8002/docs
@@ -286,9 +450,9 @@ Once services are running, interactive API docs are available:
 
 Key architectural decisions documented in `docs/adr/`:
 
-1. **[Monorepo Modular Monolith](docs/adr/001-monorepo-modular-monolith.md)** - Single repo with microservices
-2. **[Local LLM with Ollama](docs/adr/002-local-llm-ollama.md)** - Privacy-first local inference
-3. **[LangGraph Orchestration](docs/adr/003-langgraph-orchestration.md)** - Agent workflow management
+1. **[Monorepo Modular Monolith](docs/adr/001-monorepo-modular-monolith.md)** - Single repo with microservices.
+2. **[Local LLM with Ollama](docs/adr/002-local-llm-ollama.md)** - Privacy-first local inference.
+3. **[LangGraph Orchestration](docs/adr/003-langgraph-orchestration.md)** - Agent workflow management.
 
 ---
 
@@ -306,7 +470,7 @@ uvicorn app.main:app --reload --port 8002
 ### Code Quality
 
 ```bash
-# Linting (configured in pyproject.toml)
+# Linting
 ruff check .
 
 # Formatting
@@ -316,8 +480,25 @@ ruff format .
 mypy app/
 ```
 
+### Kubernetes Development
+
+```bash
+# Inspect workloads
+sudo k3s kubectl get pods -A
+
+# Monitor resource consumption
+sudo k3s kubectl top nodes
+sudo k3s kubectl top pods -A
+
+# Stop/start the cluster when needed
+sudo systemctl stop k3s
+sudo systemctl start k3s
+```
+
+Permanent Kubernetes resources are maintained declaratively under `infrastructure/kubernetes/`.
+
 ---
 
 ## 📝 License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file for details.
