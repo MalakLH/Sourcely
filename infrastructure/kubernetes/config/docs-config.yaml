@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docs-config
+  namespace: sourcely
+data:
+  APP_NAME: "Sourcely Docs Expert"
+  APP_ENV: "development"
+  APP_PORT: "8002"
+  LOG_LEVEL: "INFO"
+
+  EMBEDDING_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
+  EMBEDDING_DIMENSION: "384"
+
+  LANCEDB_PATH: "/app/data/vectordb"
+  DOCS_TABLE_NAME: "kubernetes_docs"
+
+  CHUNK_OVERLAP_PERCENT: "0.125"
+  MAX_CHUNK_TOKENS: "512"
+  MIN_CHUNK_TOKENS: "50"
+
+  DEFAULT_TOP_K: "5"
+  SIMILARITY_THRESHOLD: "0.3"

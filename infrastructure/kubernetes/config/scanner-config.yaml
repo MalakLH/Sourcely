@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scanner-config
+  namespace: sourcely
+data:
+  APP_NAME: "Sourcely Code Scanner"
+  APP_ENV: "development"
+  APP_PORT: "8004"
+  LOG_LEVEL: "INFO"
+
+  OLLAMA_MODEL: "qwen3:4b"
+  OLLAMA_TEMPERATURE: "0.3"
+
+  MAX_FILE_SIZE_MB: "10"
+  SCAN_TIMEOUT_SECONDS: "60"
