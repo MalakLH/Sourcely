@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-config
+  namespace: sourcely
+data:
+  SANDBOX_APP_NAME: "Sourcely Sandbox Service"
+
+  SANDBOX_CPU_LIMIT: "0.5"
+  SANDBOX_MEMORY_LIMIT: "128m"
+
+  SANDBOX_EXECUTION_TIMEOUT: "5"
+  SANDBOX_MAX_EXECUTION_TIMEOUT: "10"
+
+  SANDBOX_MAX_CODE_SIZE: "12000"
+  SANDBOX_OUTPUT_LIMIT: "16384"
+
+  SANDBOX_LEDGER_PATH: "/data/execution_ledger.db"

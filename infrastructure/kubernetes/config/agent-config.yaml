@@ -14,5 +14,6 @@ data:
 
   DOCS_SERVICE_URL: "http://docs-service:8002"
   WEBGUIDE_SERVICE_URL: "http://webguide-service:8003"
+  SANDBOX_BASE_URL: "http://sandbox-service:8001"
 
   MAX_AGENT_STEPS: "5"
