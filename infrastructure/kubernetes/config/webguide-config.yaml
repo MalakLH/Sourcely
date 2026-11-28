@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webguide-config
+  namespace: sourcely
+data:
+  SEARXNG_BASE_URL: "http://searxng:8080"
+  OLLAMA_MODEL: "qwen3:4b"
