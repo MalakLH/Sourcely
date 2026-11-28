@@ -25,12 +25,12 @@ class OllamaSummarizer:
 
     def __init__(
         self,
-        model: str = "qwen3:4b",
+        model: str | None = None,
         base_url: str | None = None,
         timeout: float = 120.0,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
-        self.model = model
+        self.model = model or os.getenv("OLLAMA_MODEL", "qwen3:4b")
         self.base_url = (
             base_url
             or os.getenv(

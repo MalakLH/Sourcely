@@ -130,6 +130,13 @@ services:
     env_file:
       - ../../.env
 
+    environment:
+      SEARXNG_BASE_URL: http://searxng:8080
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     volumes:
       - ../../services/webguide_service/app:/app/app
 

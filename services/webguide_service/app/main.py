@@ -5,6 +5,7 @@ Exposes Malak's search and ranking functionality as a REST API.
 """
 
 import logging
+import os
 
 # Import Malak's implementations
 from app.schema.search_result import SearchResult
@@ -98,7 +99,10 @@ async def search_web(request: SearchRequest) -> SearchResponse:
         if "searxng" in request.sources:
             try:
                 searxng_client = SearXNGClient(
-                    base_url="http://searxng:8080",  # Docker service name
+                    base_url=os.getenv(
+                        "SEARXNG_BASE_URL",
+                        "http://localhost:8080",
+                    ),
                     timeout=10.0,
                 )
                 searxng_results = await searxng_client.search(
