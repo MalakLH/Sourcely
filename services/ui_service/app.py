@@ -6,6 +6,7 @@ Deep-navy and cobalt brand palette with conversation bubbles
 import base64
 import io
 from pathlib import Path
+import os
 
 import httpx
 from PIL import Image, ImageDraw
@@ -595,8 +596,13 @@ def inject_custom_css():
 class SourcelyAPIClient:
     """Client for Sourcely Agent API."""
 
-    def __init__(self, base_url: str = "http://sourcely-agent:8000"):
-        self.base_url = base_url
+    def __init__(self, base_url: str | None = None):
+        self.base_url = (
+            base_url or os.getenv(
+                "AGENT_SERVICE_URL",
+                "http://localhost:8000",
+            )
+        ).rstrip("/")
         self.timeout = 120.0
 
     async def query_agent(self, query: str, code: str | None = None) -> dict:

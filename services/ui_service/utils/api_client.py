@@ -1,6 +1,7 @@
 """API client for communicating with backend services."""
 
 import httpx
+import os
 
 
 class SourcelyAPIClient:
@@ -8,14 +9,32 @@ class SourcelyAPIClient:
 
     def __init__(
         self,
-        agent_url: str = "http://localhost:8000",
-        scanner_url: str = "http://localhost:8002",
-        docs_url: str = "http://localhost:8001",
+        agent_url: str | None = None,
+        scanner_url: str | None = None,
+        docs_url: str | None = None,
         timeout: float = 30.0,
     ):
-        self.agent_url = agent_url.rstrip("/")
-        self.scanner_url = scanner_url.rstrip("/")
-        self.docs_url = docs_url.rstrip("/")
+        self.agent_url = (
+            agent_url or os.getenv(
+                "AGENT_SERVICE_URL",
+                "http://localhost:8000",
+            )
+        ).rstrip("/")
+
+        self.scanner_url = (
+            scanner_url or os.getenv(
+                "SCANNER_SERVICE_URL",
+                "http://localhost:8004",
+            )
+        ).rstrip("/")
+
+        self.docs_url = (
+            docs_url or os.getenv(
+                "DOCS_SERVICE_URL",
+                "http://localhost:8002",
+            )
+        ).rstrip("/")
+
         self.timeout = timeout
 
     async def query_agent(self, query: str, code: str | None = None) -> dict:
