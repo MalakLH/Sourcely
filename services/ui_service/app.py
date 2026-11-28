@@ -5,8 +5,8 @@ Deep-navy and cobalt brand palette with conversation bubbles
 
 import base64
 import io
-from pathlib import Path
 import os
+from pathlib import Path
 
 import httpx
 from PIL import Image, ImageDraw
@@ -598,7 +598,8 @@ class SourcelyAPIClient:
 
     def __init__(self, base_url: str | None = None):
         self.base_url = (
-            base_url or os.getenv(
+            base_url
+            or os.getenv(
                 "AGENT_SERVICE_URL",
                 "http://localhost:8000",
             )

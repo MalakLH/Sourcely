@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: searxng-config
+  namespace: sourcely
+data:
+  settings.yml: |
+    use_default_settings: true
+
+    server:
+      limiter: false
+      image_proxy: false
+
+    search:
+      formats:
+        - html
+        - json

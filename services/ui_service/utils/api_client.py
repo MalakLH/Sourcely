@@ -1,7 +1,8 @@
 """API client for communicating with backend services."""
 
-import httpx
 import os
+
+import httpx
 
 
 class SourcelyAPIClient:
@@ -15,21 +16,24 @@ class SourcelyAPIClient:
         timeout: float = 30.0,
     ):
         self.agent_url = (
-            agent_url or os.getenv(
+            agent_url
+            or os.getenv(
                 "AGENT_SERVICE_URL",
                 "http://localhost:8000",
             )
         ).rstrip("/")
 
         self.scanner_url = (
-            scanner_url or os.getenv(
+            scanner_url
+            or os.getenv(
                 "SCANNER_SERVICE_URL",
                 "http://localhost:8004",
             )
         ).rstrip("/")
 
         self.docs_url = (
-            docs_url or os.getenv(
+            docs_url
+            or os.getenv(
                 "DOCS_SERVICE_URL",
                 "http://localhost:8002",
             )
